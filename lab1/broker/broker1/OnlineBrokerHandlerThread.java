@@ -77,7 +77,9 @@ public class OnlineBrokerHandlerThread extends Thread {
                             System.out.println("no match 1= " + col1_array[i] + "END 2= " + packetFromClient.symbol); 
 
                         }
-                    }       	
+                    }
+                    if (packetToClient.quote == null) 
+                        packetToClient.quote = 0l;
 					/* send reply back to client */
 					toClient.writeObject(packetToClient);
 					
