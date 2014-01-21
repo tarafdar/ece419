@@ -46,7 +46,7 @@ public class BrokerExchange{
             
             String [] input_args = userInput.split(" ");
 
-            if(input_args[0].equals("add"){
+            if(input_args[0].equals("add")){
                 packetToServer.type = BrokerPacket.EXCHANGE_ADD;
                 packetToServer.symbol = input_args[1];
 			    out.writeObject(packetToServer);
@@ -58,7 +58,7 @@ public class BrokerExchange{
 		    	if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
 			    	System.out.println(input_args[1] + " added");
             }
-            if(input_args[1].equals("update"){
+            if(input_args[0].equals("update")){
                 packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
                 packetToServer.symbol = input_args[1] + " " + input_args[2];
 			    out.writeObject(packetToServer);
@@ -70,7 +70,7 @@ public class BrokerExchange{
 		    	if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
 			    	System.out.println(input_args[1] + " updated to " + input_args[2]);
             }
-            if(input_args[1].equals("remove"){
+            if(input_args[0].equals("remove")){
                 packetToServer.type = BrokerPacket.EXCHANGE_REMOVE;
                 packetToServer.symbol = input_args[1];
 			    out.writeObject(packetToServer);

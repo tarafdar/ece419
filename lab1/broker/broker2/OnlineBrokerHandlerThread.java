@@ -11,7 +11,7 @@ public class OnlineBrokerHandlerThread extends Thread {
 	}
 
 	public void run() {
-
+        System.out.println("in loop");
         BufferedReader br = null;
         String line;
         try
@@ -59,11 +59,11 @@ public class OnlineBrokerHandlerThread extends Thread {
 			while (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
 				/* create a packet to send reply back to client */
 				BrokerPacket packetToClient = new BrokerPacket();
-				packetToClient.type = BrokerPacket.BROKER_QUOTE;
 				
 				/* process message */
 				/* just echo in this example */
 				if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
+				    packetToClient.type = BrokerPacket.BROKER_QUOTE;
                     col1_array = col1_list.toArray(new String[col1_list.size()]);
                     col2_array = col2_list.toArray(new String[col2_list.size()]);
 					//System.out.println("From Client: " + packetFromClient.message);
@@ -87,22 +87,33 @@ public class OnlineBrokerHandlerThread extends Thread {
 				}
 			    
                 if(packetFromClient.type == BrokerPacket.EXCHANGE_ADD){
+				    packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
+				    System.out.println("In exchange add!!");
                     col1_list.add(packetFromClient.symbol);
                     col2_list.add("");
                     col1_array = col1_list.toArray(new String[col1_list.size()]);
                     col2_array = col2_list.toArray(new String[col2_list.size()]);
+					toClient.writeObject(packetToClient);
+                    continue;
                 }	
 			    
                 if(packetFromClient.type == BrokerPacket.EXCHANGE_UPDATE){
                     String [] sym_array = packetFromClient.symbol.split(" ");
+				    System.out.println("In exchange update!! " + sym_array[0] + " to " + sym_array[1]);
                     col1_array = col1_list.toArray(new String[col1_list.size()]);
                     col2_array = col2_list.toArray(new String[col2_list.size()]);
                     for(i=0;i<col1_array.length;i++){
                         if(col1_array[i].equals(sym_array[0])){
                             col2_array[i] = sym_array[1];
+                            System.out.println("Update found!!! updating " + col1_array[i] + " to "  + col2_array[i] );
                         }
                     }
+                    
+                    
                     col2_list = new ArrayList<String>(Arrays.asList(col2_array));
+				    packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
+					toClient.writeObject(packetToClient);
+                    continue;
                 
                 }	
 			
@@ -121,6 +132,9 @@ public class OnlineBrokerHandlerThread extends Thread {
                         col1_list.remove(index);
                         col2_list.remove(index);
                     }
+				    packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
+					toClient.writeObject(packetToClient);
+                    continue;
                 }	
                 
                 /* Sending an ECHO_NULL || ECHO_BYE means quit */
