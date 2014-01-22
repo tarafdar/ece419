@@ -86,11 +86,14 @@ public class OnlineBrokerHandlerThread extends Thread {
 			        //System.out.println("packet from client symbol " + packetFromClient.symbol + "END");
 			        i = col1_list.indexOf(packetFromClient.symbol);
                     if (i != -1) {       
-                            packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
+                        packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
                       //      System.out.println("found!!...sending " + col2_list.get(i));
                     }
-                    else 
-                            packetToClient.quote = 0l;
+                    else { 
+                        packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
+                        packetToClient.type = BrokerPacket.BROKER_ERROR;
+                    }
+                            //packetToClient.quote = 0l;
     
 					/* send reply back to client */
 					toClient.writeObject(packetToClient);

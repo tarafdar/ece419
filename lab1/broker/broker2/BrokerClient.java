@@ -2,6 +2,10 @@ import java.io.*;
 import java.net.*;
 
 public class BrokerClient{
+	public static void errorHandling (String symbol, BrokerPacket packetFromServer) {
+        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
+            System.out.println (symbol + " invalid.");
+    }
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
 
@@ -53,6 +57,8 @@ public class BrokerClient{
 
 			if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
 				System.out.println("Quote from broker: " + packetFromServer.quote);
+            else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                errorHandling(userInput, packetFromServer);
 
 			/* re-print console prompt */
 			System.out.print(">");
