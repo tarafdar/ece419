@@ -3,9 +3,8 @@ import java.io.*;
 import java.util.*;
 public class BrokerLookupServerHandlerThread extends Thread {
 	private Socket socket = null;
-    public ArrayList <String>col1_list = new ArrayList<String>();
-    public ArrayList <String>col2_list = new ArrayList<String>();
-	public ArrayList <BrokerLocation> servers = new ArrayList<BrokerLocation>();
+	public ArrayList <String> server_hosts = new ArrayList<String>();
+	public ArrayList <Integer> server_ports = new ArrayList<Integer>();
 	public ArrayList <String> server_names = new ArrayList<String>();
 
 	public BrokerLookupServerHandlerThread(Socket socket) {
@@ -17,23 +16,33 @@ public class BrokerLookupServerHandlerThread extends Thread {
     public void read_file() {
         BufferedReader br = null;
         String line;
-        this.col1_list.clear();
-        this.col2_list.clear();
+        this.server_hosts.clear();
+        this.server_ports.clear();
+        this.server_names.clear();
         try
         {
-            br = new BufferedReader(new FileReader("input.txt"));
+            File file = new File("servers.txt");
+            file.createNewFile();
+            br = new BufferedReader(new FileReader("servers.txt"));
         }
         catch(FileNotFoundException fnfe)
         {
             System.out.println(fnfe.getMessage());
 
         }
+        catch(IOException ioe){
+            System.out.println(ioe.getMessage());
+
+
+        }
         try
         {
              while((line = br.readLine()) != null){
                  String [] line_array = line.split(" ");
-                 this.col1_list.add(line_array[0]);
-                 this.col2_list.add(line_array[1]);
+                 server_names.add(line_array[0]);
+                 
+                 server_hosts.add(line_array[1]);
+                 server_ports.add(Integer.parseInt(line_array[2])); 
              }
              br.close();
         }
@@ -48,12 +57,12 @@ public class BrokerLookupServerHandlerThread extends Thread {
         int i;
         File file;
         PrintWriter writer;
-        file = new File("input.txt");
+        file = new File("servers.txt");
         try
         {
             writer = new PrintWriter(file);
-            for(i = 0; i< col1_list.size(); i++){
-                writer.println(col1_list.get(i) + " " + col2_list.get(i));
+            for(i = 0; i< server_names.size(); i++){
+                writer.println(server_names.get(i) + " " + server_hosts.get(i) + " " + server_ports.get(i));
             }    
             writer.close(); 
         }
@@ -69,7 +78,8 @@ public class BrokerLookupServerHandlerThread extends Thread {
         boolean gotByePacket = false;
 		try {
 			/* stream to read from client */
-			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
+			System.out.println("here");
+            ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			BrokerPacket packetFromClient;
 			
 			/* stream to write back to client */
@@ -79,20 +89,25 @@ public class BrokerLookupServerHandlerThread extends Thread {
 			while (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
 				/* create a packet to send reply back to client */
 				BrokerPacket packetToClient = new BrokerPacket();
-				
+			    read_file();
+                 
+                System.out.println("type " + packetFromClient.type); 	
 				/* process message */
 				/* just echo in this example */
 				if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
-				    packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-			        servers.add(packetFromClient.locations[0]);
+				    System.out.println("In REGISTER");
+			        server_ports.add(packetFromClient.locations[0].broker_port);
+			        server_hosts.add(packetFromClient.locations[0].broker_host);
 			        server_names.add(packetFromClient.exchange);
+                    write_file();
 					continue;
 				}
 			    
                 if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST){
                     i = server_names.indexOf(packetFromClient.exchange);
                     if (i != -1) { 
-                        packetToClient.locations[0] = servers.get(i);  
+                        packetToClient.locations = new BrokerLocation[1];
+                        packetToClient.locations[0] = new BrokerLocation(server_hosts.get(i), server_ports.get(i)); 
 				        packetToClient.type = BrokerPacket.LOOKUP_REPLY;
                     }
                     else {
@@ -124,9 +139,12 @@ public class BrokerLookupServerHandlerThread extends Thread {
 			socket.close();
 
 		} catch (IOException e) {
-			if(!gotByePacket)
+			System.out.println("here1");
+		
+        	if(!gotByePacket)
 				e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			System.out.println("here2");
 			if(!gotByePacket)
 				e.printStackTrace();
 		}
