@@ -5,13 +5,19 @@ public class BrokerClient{
 	public static void errorHandling (String symbol, BrokerPacket packetFromServer) {
         if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
             System.out.println (symbol + " invalid.");
+        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE)
+            System.out.println ("invalid exchange " + symbol + ".");
+
     }
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
 
-		Socket echoSocket = null;
-		ObjectOutputStream out = null;
-		ObjectInputStream in = null;
+		Socket LookupSocket = null;
+        Socket BrokerSocket = null;
+		ObjectOutputStream lookup_out = null;
+		ObjectInputStream lookup_in = null;
+		ObjectOutputStream broker_out = null;
+		ObjectInputStream broker_in = null;
 
 		try {
 			/* variables for hostname/port */
@@ -28,7 +34,7 @@ public class BrokerClient{
 		    LookupSocket = new Socket(hostname, port);
 
 			lookup_out = new ObjectOutputStream(LookupSocket.getOutputStream());
-			lookup_in = new ObjectInputStream(Socket.getInputStream());
+			lookup_in = new ObjectInputStream(LookupSocket.getInputStream());
 
 		} catch (UnknownHostException e) {
 			System.err.println("ERROR: Don't know where to connect!!");
@@ -45,25 +51,42 @@ public class BrokerClient{
 		System.out.print(">");
 		while ((userInput = stdIn.readLine()) != null && !userInput.equals("x")) {
 			/* make a new request packet */
-			BrokerPacket packet = new BrokerPacket();
+			BrokerPacket outputPacket = new BrokerPacket();
 			
             String [] input_args = userInput.split(" ");
             if (input_args[0].equals("local")) {
-                packet.type = BrokerPacket.LOOKUP_REQUEST;
-                packet.exchange = input_args[1];
-		        try {
-                
+                outputPacket.type = BrokerPacket.LOOKUP_REQUEST;
+                outputPacket.exchange = input_args[1];
+                lookup_out.writeObject(outputPacket);
+			    
+                BrokerPacket packetFromServer;
+			    packetFromServer = (BrokerPacket) lookup_in.readObject();
+		        
+                if(packetFromServer.type == BrokerPacket.LOOKUP_REPLY) { 
+                    try {
+                        BrokerSocket = new Socket (packetFromServer.locations[0].broker_host, packetFromServer.locations[0].broker_port);
+			            broker_out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+			            broker_in = new ObjectInputStream(BrokerSocket.getInputStream());
 
-
+                    } catch (UnknownHostException e) {
+			            System.err.println("ERROR: Don't know where to connect to Broker!!");
+			            System.exit(1);
+		            } catch (IOException e) {
+			            System.err.println("ERROR: Couldn't get I/O for the connection to Broker.");
+			            System.exit(1);
+		            }
+                }
+                else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                    errorHandling(input_args[1], packetFromServer);
             }
             else {
-                packet.type = BrokerPacket.BROKER_REQUEST;
-                packet.symbol = userInput;
-			    out.writeObject(packet);
+                outputPacket.type = BrokerPacket.BROKER_REQUEST;
+                outputPacket.symbol = userInput;
+			    broker_out.writeObject(outputPacket);
 
 			    /* print server reply */
 			    BrokerPacket packetFromServer;
-			    packetFromServer = (BrokerPacket) in.readObject();
+			    packetFromServer = (BrokerPacket) broker_in.readObject();
 
 			    if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
 				    System.out.println("Quote from broker: " + packetFromServer.quote);
@@ -78,11 +101,14 @@ public class BrokerClient{
 		/* tell server that i'm quitting */
 		BrokerPacket packetToServer = new BrokerPacket();
 		packetToServer.type = BrokerPacket.BROKER_BYE;
-		out.writeObject(packetToServer);
+		broker_out.writeObject(packetToServer);
 
-		out.close();
-		in.close();
+		broker_out.close();
+		broker_in.close();
+		lookup_out.close();
+		lookup_in.close();
 		stdIn.close();
-		echoSocket.close();
+		BrokerSocket.close();
+        LookupSocket.close();
 	}
 }

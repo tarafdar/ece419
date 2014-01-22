@@ -5,10 +5,10 @@ public class BrokerLookupServerHandlerThread extends Thread {
 	private Socket socket = null;
     public ArrayList <String>col1_list = new ArrayList<String>();
     public ArrayList <String>col2_list = new ArrayList<String>();
-	public Arraylist <BrokerLocation> servers = new ArrayList<BrokerLocation();
-	public Arraylist <BrokerLocation> server_names = new ArrayList<BrokerLocation();
+	public ArrayList <BrokerLocation> servers = new ArrayList<BrokerLocation>();
+	public ArrayList <String> server_names = new ArrayList<String>();
 
-	public BrokerLookupHandlerThread(Socket socket) {
+	public BrokerLookupServerHandlerThread(Socket socket) {
 		super("OnlineBrokerHandlerThread");
 		this.socket = socket;
 		//System.out.println("Created new Thread to handle client");
@@ -85,7 +85,7 @@ public class BrokerLookupServerHandlerThread extends Thread {
 				if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
 				    packetToClient.type = BrokerPacket.LOOKUP_REPLY;
 			        servers.add(packetFromClient.locations[0]);
-			        server_names.add(packetFromClient.symbol);
+			        server_names.add(packetFromClient.exchange);
 					continue;
 				}
 			    

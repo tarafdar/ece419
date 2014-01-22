@@ -2,7 +2,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
-public class OnlineBroker {
+public class BrokerLookupServer {
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
         boolean listening = true;
