@@ -36,7 +36,8 @@ public class BrokerClient{
 
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
-
+        
+        System.out.println("Enter symbol or x for exit");
 		System.out.print(">");
 		while ((userInput = stdIn.readLine()) != null
 				&& !userInput.equals("x")) {

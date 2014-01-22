@@ -2,7 +2,16 @@ import java.io.*;
 import java.net.*;
 
 public class BrokerExchange{
-	public static void main(String[] args) throws IOException,
+	public static void errorHandling (String symbol, BrokerPacket packetFromServer) {
+        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
+            System.out.println (symbol + " invalid.");
+        else if (packetFromServer.error_code == BrokerPacket.ERROR_OUT_OF_RANGE)
+            System.out.println (symbol + " out of range.");
+        else if (packetFromServer.error_code == BrokerPacket.ERROR_SYMBOL_EXISTS)
+            System.out.println (symbol + " exists.");
+    }
+
+    public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
 
 		Socket echoSocket = null;
@@ -36,7 +45,7 @@ public class BrokerExchange{
 
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
-
+        System.out.println("Enter command or x for exit");
 		System.out.print(">");
 		while ((userInput = stdIn.readLine()) != null
 				&& !userInput.equals("x")) {
@@ -56,7 +65,9 @@ public class BrokerExchange{
 			    packetFromServer = (BrokerPacket) in.readObject();
 
 		    	if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
-			    	System.out.println(input_args[1] + " added");
+			    	System.out.println(input_args[1] + " added.");
+                else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                    errorHandling(input_args[1], packetFromServer);
             }
             if(input_args[0].equals("update")){
                 packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
@@ -68,7 +79,9 @@ public class BrokerExchange{
 			    packetFromServer = (BrokerPacket) in.readObject();
 
 		    	if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
-			    	System.out.println(input_args[1] + " updated to " + input_args[2]);
+			    	System.out.println(input_args[1] + " updated to " + input_args[2]+ ".");
+                else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                    errorHandling(input_args[1], packetFromServer);
             }
             if(input_args[0].equals("remove")){
                 packetToServer.type = BrokerPacket.EXCHANGE_REMOVE;
@@ -81,7 +94,9 @@ public class BrokerExchange{
 			    packetFromServer = (BrokerPacket) in.readObject();
 
 		    	if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
-			    	System.out.println(input_args[1] + " removed");
+			    	System.out.println(input_args[1] + " removed.");
+                else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                    errorHandling(input_args[1], packetFromServer);
             }
 			/* re-print console prompt */
 			System.out.print(">");
