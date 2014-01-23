@@ -100,10 +100,13 @@ public class BrokerLookupServerHandlerThread extends Thread {
 			        server_hosts.add(packetFromClient.locations[0].broker_host);
 			        server_names.add(packetFromClient.exchange);
                     write_file();
+                    packetToClient.type = BrokerPacket.LOOKUP_REPLY;
+                    toClient.writeObject(packetToClient);
 					continue;
 				}
 			    
                 if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST){
+				    System.out.println("Recieved lookup request");
                     i = server_names.indexOf(packetFromClient.exchange);
                     if (i != -1) { 
                         packetToClient.locations = new BrokerLocation[1];
@@ -115,6 +118,7 @@ public class BrokerLookupServerHandlerThread extends Thread {
                         packetToClient.type = BrokerPacket.BROKER_ERROR;
                     }
                     toClient.writeObject(packetToClient);
+				    System.out.println("responded to client");
                     continue;
                 }	
 			    

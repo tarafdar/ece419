@@ -4,7 +4,7 @@ import java.util.*;
 import java.lang.*;
 import java.net.*;
 public class OnlineBroker {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         int lookupPort = 4444;
         String lookupHost = "localhost";
         String exchange = "garbage"; 
@@ -34,25 +34,21 @@ public class OnlineBroker {
         }
 
         BrokerPacket packetToLookup = new BrokerPacket();
-        //BrokerPacket packetFromLookup = new BrokerPacket;
-        BrokerPacket packetFromLookup;
         packetToLookup.locations = new BrokerLocation[1];
         packetToLookup.locations[0] = new BrokerLocation(InetAddress.getLocalHost().getHostName(), listenPort);
         packetToLookup.type = BrokerPacket.LOOKUP_REGISTER;
         packetToLookup.exchange = exchange; 
         toLookup.writeObject(packetToLookup);
-        try{ 
-            packetFromLookup = (BrokerPacket) fromLookup.readObject(); 
-        }
-        catch (ClassNotFoundException e){
-            System.out.println("blah");
-        }
-        
+        BrokerPacket packetFromLookup;
+        packetFromLookup = (BrokerPacket) fromLookup.readObject(); 
+        System.out.println("before closes"); 
         toLookup.close();
+        fromLookup.close();
         lookupSocket.close();
+        System.out.println("before while"); 
               
         while (listening) {
-        	new OnlineBrokerHandlerThread(serverSocketClient.accept()).start();
+        	new OnlineBrokerHandlerThread(serverSocketClient.accept(),exchange, lookupHost, lookupPort).start();
         }
 
         serverSocketClient.close();

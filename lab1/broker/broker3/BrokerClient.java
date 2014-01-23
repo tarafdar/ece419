@@ -5,7 +5,7 @@ public class BrokerClient{
 	public static void errorHandling (String symbol, BrokerPacket packetFromServer) {
         if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
             System.out.println (symbol + " invalid.");
-        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE)
+        else if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE)
             System.out.println ("invalid exchange " + symbol + ".");
 
     }
@@ -54,19 +54,22 @@ public class BrokerClient{
 			BrokerPacket outputPacket = new BrokerPacket();
 			
             String [] input_args = userInput.split(" ");
-            if (input_args[0].equals("local")) {
+            if (input_args[0].equals("local") && input_args.length == 2) {
                 outputPacket.type = BrokerPacket.LOOKUP_REQUEST;
                 outputPacket.exchange = input_args[1];
                 lookup_out.writeObject(outputPacket);
 			    
                 BrokerPacket packetFromServer;
 			    packetFromServer = (BrokerPacket) lookup_in.readObject();
-		        
+		        System.out.println("Received packet from lookup server"); 
                 if(packetFromServer.type == BrokerPacket.LOOKUP_REPLY) { 
                     try {
                         BrokerSocket = new Socket (packetFromServer.locations[0].broker_host, packetFromServer.locations[0].broker_port);
-			            broker_out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+		                System.out.println("Created Socket at host" + packetFromServer.locations[0].broker_host + " at port " + packetFromServer.locations[0].broker_port); 
+                        broker_out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+		                System.out.println("Created out stream"); 
 			            broker_in = new ObjectInputStream(BrokerSocket.getInputStream());
+		                System.out.println("Created in stream"); 
 
                     } catch (UnknownHostException e) {
 			            System.err.println("ERROR: Don't know where to connect to Broker!!");
@@ -79,20 +82,29 @@ public class BrokerClient{
                 else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
                     errorHandling(input_args[1], packetFromServer);
             }
-            else {
-                outputPacket.type = BrokerPacket.BROKER_REQUEST;
-                outputPacket.symbol = userInput;
-			    broker_out.writeObject(outputPacket);
+            else if (input_args.length == 1){
+                if (BrokerSocket == null) {
+                    System.out.println("No connection initialized.");
+                }
+                else {
+                    outputPacket.type = BrokerPacket.BROKER_REQUEST;
+                    outputPacket.symbol = userInput;
+			        broker_out.writeObject(outputPacket);
 
-			    /* print server reply */
-			    BrokerPacket packetFromServer;
-			    packetFromServer = (BrokerPacket) broker_in.readObject();
+			        /* print server reply */
+			        BrokerPacket packetFromServer;
+			        packetFromServer = (BrokerPacket) broker_in.readObject();
 
-			    if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
-				    System.out.println("Quote from broker: " + packetFromServer.quote);
-                else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
-                    errorHandling(userInput, packetFromServer);
+			        if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
+				        System.out.println("Quote from broker: " + packetFromServer.quote);
+                    else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
+                        errorHandling(userInput, packetFromServer);
+                }
             }
+            else {
+                System.out.println("Invalid command.");
+            }    
+                
 			/* re-print console prompt */
 			System.out.print(">");
             
