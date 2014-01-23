@@ -78,7 +78,6 @@ public class BrokerLookupServerHandlerThread extends Thread {
         boolean gotByePacket = false;
 		try {
 			/* stream to read from client */
-			System.out.println("here");
             ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			BrokerPacket packetFromClient;
 			
@@ -91,11 +90,9 @@ public class BrokerLookupServerHandlerThread extends Thread {
 				BrokerPacket packetToClient = new BrokerPacket();
 			    read_file();
                  
-                System.out.println("type " + packetFromClient.type); 	
 				/* process message */
 				/* just echo in this example */
 				if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
-				    System.out.println("In REGISTER");
 			        server_ports.add(packetFromClient.locations[0].broker_port);
 			        server_hosts.add(packetFromClient.locations[0].broker_host);
 			        server_names.add(packetFromClient.exchange);
@@ -106,7 +103,6 @@ public class BrokerLookupServerHandlerThread extends Thread {
 				}
 			    
                 if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST){
-				    System.out.println("Recieved lookup request");
                     i = server_names.indexOf(packetFromClient.exchange);
                     if (i != -1) { 
                         packetToClient.locations = new BrokerLocation[1];
@@ -118,7 +114,6 @@ public class BrokerLookupServerHandlerThread extends Thread {
                         packetToClient.type = BrokerPacket.BROKER_ERROR;
                     }
                     toClient.writeObject(packetToClient);
-				    System.out.println("responded to client");
                     continue;
                 }	
 			    
@@ -143,12 +138,9 @@ public class BrokerLookupServerHandlerThread extends Thread {
 			socket.close();
 
 		} catch (IOException e) {
-			System.out.println("here1");
-		
         	if(!gotByePacket)
 				e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			System.out.println("here2");
 			if(!gotByePacket)
 				e.printStackTrace();
 		}

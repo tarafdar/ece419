@@ -75,6 +75,12 @@ public class BrokerExchange{
         }
         else if (packetFromLookup.type == BrokerPacket.BROKER_ERROR)
             errorHandling(exchange, packetFromLookup);
+        
+        
+        BrokerPacket packetGoodBye = new BrokerPacket();
+        packetGoodBye.type = BrokerPacket.BROKER_BYE; 
+        lookup_out.writeObject(packetGoodBye);
+        
         LookupSocket.close();
 		lookup_out.close();
 		lookup_in.close();

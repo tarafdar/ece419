@@ -41,11 +41,14 @@ public class OnlineBroker {
         toLookup.writeObject(packetToLookup);
         BrokerPacket packetFromLookup;
         packetFromLookup = (BrokerPacket) fromLookup.readObject(); 
-        System.out.println("before closes"); 
+        
+        BrokerPacket packetGoodBye = new BrokerPacket();
+        packetGoodBye.type = BrokerPacket.BROKER_BYE; 
+        toLookup.writeObject(packetGoodBye);
+        
         toLookup.close();
         fromLookup.close();
         lookupSocket.close();
-        System.out.println("before while"); 
               
         while (listening) {
         	new OnlineBrokerHandlerThread(serverSocketClient.accept(),exchange, lookupHost, lookupPort).start();

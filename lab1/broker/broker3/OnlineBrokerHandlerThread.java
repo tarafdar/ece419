@@ -90,6 +90,7 @@ public class OnlineBrokerHandlerThread extends Thread {
 				    packetToClient.type = BrokerPacket.BROKER_QUOTE;
 			        i = col1_list.indexOf(packetFromClient.symbol);
                     if (i != -1) {       
+
                         packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
                     }
                     else { 
@@ -121,7 +122,11 @@ public class OnlineBrokerHandlerThread extends Thread {
                             
                             BrokerPacket packetFromForward = (BrokerPacket) fromForward.readObject(); 
                             packetToClient = packetFromForward;
-                            toClient.writeObject(packetToClient);
+                            //toClient.writeObject(packetToClient);
+                            BrokerPacket packetGoodBye = new BrokerPacket();
+                            packetGoodBye.type = BrokerPacket.BROKER_BYE; 
+                            toLookup.writeObject(packetGoodBye);
+                            toForward.writeObject(packetGoodBye);
                              
                             lookupSocket.close();
                             toLookup.close();
@@ -149,13 +154,15 @@ public class OnlineBrokerHandlerThread extends Thread {
 					continue;
 				}
 			    if(packetFromClient.type == BrokerPacket.BROKER_FORWARD){
-			        i = col1_list.indexOf(packetFromClient.symbol);
+				    packetToClient.type = BrokerPacket.BROKER_QUOTE;
+                    i = col1_list.indexOf(packetFromClient.symbol);
                     if (i != -1) {       
                         packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
                     }
                     else{
                         packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
                         packetToClient.type = BrokerPacket.BROKER_ERROR;
+                        packetToClient.quote = 999l;
                     }
                     toClient.writeObject(packetToClient);
                     continue;

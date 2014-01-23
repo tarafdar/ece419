@@ -47,8 +47,8 @@ public class BrokerClient{
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
         
-        System.out.println("Enter symbol or x for exit");
-		System.out.print(">");
+        System.out.println("Enter command, symbol or x for exit:");
+		System.out.print("> ");
 		while ((userInput = stdIn.readLine()) != null && !userInput.equals("x")) {
 			/* make a new request packet */
 			BrokerPacket outputPacket = new BrokerPacket();
@@ -61,15 +61,11 @@ public class BrokerClient{
 			    
                 BrokerPacket packetFromServer;
 			    packetFromServer = (BrokerPacket) lookup_in.readObject();
-		        System.out.println("Received packet from lookup server"); 
                 if(packetFromServer.type == BrokerPacket.LOOKUP_REPLY) { 
                     try {
                         BrokerSocket = new Socket (packetFromServer.locations[0].broker_host, packetFromServer.locations[0].broker_port);
-		                System.out.println("Created Socket at host" + packetFromServer.locations[0].broker_host + " at port " + packetFromServer.locations[0].broker_port); 
                         broker_out = new ObjectOutputStream(BrokerSocket.getOutputStream());
-		                System.out.println("Created out stream"); 
 			            broker_in = new ObjectInputStream(BrokerSocket.getInputStream());
-		                System.out.println("Created in stream"); 
 
                     } catch (UnknownHostException e) {
 			            System.err.println("ERROR: Don't know where to connect to Broker!!");
@@ -106,7 +102,7 @@ public class BrokerClient{
             }    
                 
 			/* re-print console prompt */
-			System.out.print(">");
+			System.out.print("> ");
             
 		}
 
