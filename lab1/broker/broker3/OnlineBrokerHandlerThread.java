@@ -5,10 +5,15 @@ public class OnlineBrokerHandlerThread extends Thread {
 	private Socket socket = null;
     public ArrayList <String>col1_list = new ArrayList<String>();
     public ArrayList <String>col2_list = new ArrayList<String>();
-
-	public OnlineBrokerHandlerThread(Socket socket) {
+    public String exchange;
+    public String lookupHost;
+    public int lookupPort;
+	public OnlineBrokerHandlerThread(Socket socket, String exchange, String lookupHost, int lookupPort) {
 		super("OnlineBrokerHandlerThread");
 		this.socket = socket;
+        this.exchange = exchange;
+        this.lookupHost = lookupHost;
+        this.lookupPort = lookupPort;
 		//System.out.println("Created new Thread to handle client");
 	}
 
@@ -83,15 +88,55 @@ public class OnlineBrokerHandlerThread extends Thread {
 				/* just echo in this example */
 				if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
 				    packetToClient.type = BrokerPacket.BROKER_QUOTE;
-			        //System.out.println("packet from client symbol " + packetFromClient.symbol + "END");
 			        i = col1_list.indexOf(packetFromClient.symbol);
                     if (i != -1) {       
                         packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
-                      //      System.out.println("found!!...sending " + col2_list.get(i));
                     }
                     else { 
-                        packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
-                        packetToClient.type = BrokerPacket.BROKER_ERROR;
+                        try{
+                            Socket lookupSocket = new Socket(lookupHost, lookupPort);    
+                            ObjectOutputStream toLookup = new ObjectOutputStream(lookupSocket.getOutputStream());
+                            ObjectInputStream fromLookup = new ObjectInputStream(lookupSocket.getInputStream());
+                            BrokerPacket packetToLookup = new BrokerPacket();
+                            packetToLookup.type = BrokerPacket.LOOKUP_REQUEST;
+                            if(exchange.equals("nasdaq")) 
+                                packetToLookup.exchange = "tse";
+                            else
+                                packetToLookup.exchange = "nasdaq";
+                                 
+                            
+                            toLookup.writeObject(packetToLookup);
+                            BrokerPacket packetFromLookup = (BrokerPacket) fromLookup.readObject(); 
+                           
+                           
+                            //now we know location of server to forward to
+                            Socket forwardSocket = new Socket(packetFromLookup.locations[0].broker_host, packetFromLookup.locations[0].broker_port);
+                                
+                            ObjectOutputStream toForward = new ObjectOutputStream(forwardSocket.getOutputStream());
+                            ObjectInputStream fromForward = new ObjectInputStream(forwardSocket.getInputStream());
+                            BrokerPacket packetToForward = new BrokerPacket();
+                            packetToForward.type = BrokerPacket.BROKER_FORWARD;
+                            packetToForward.symbol = packetFromClient.symbol;
+                            toForward.writeObject(packetToForward);
+                            BrokerPacket packetFromForward = (BrokerPacket) fromForward.readObject(); 
+                            packetToClient = packetFromForward;
+                            
+                            lookupSocket.close();
+                            toLookup.close();
+                            fromLookup.close();
+                            forwardSocket.close();
+                            toForward.close();
+                            fromForward.close();  
+                             
+                        }
+                        catch (IOException ioe){
+                            System.out.println("blah");
+                        }
+                        catch (ClassNotFoundException e){
+                             System.out.println("blah");
+
+
+                         }
                     }
                             //packetToClient.quote = 0l;
     
@@ -101,7 +146,16 @@ public class OnlineBrokerHandlerThread extends Thread {
 					/* wait for next packet */
 					continue;
 				}
-			    
+			    if(packetFromClient.type == BrokerPacket.BROKER_FORWARD){
+			        i = col1_list.indexOf(packetFromClient.symbol);
+                    if (i != -1) {       
+                        packetToClient.quote = Long.parseLong(col2_list.get(i), 10);
+                    }
+                    else{
+                        packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
+                        packetToClient.type = BrokerPacket.BROKER_ERROR;
+                    }
+                }
                 if(packetFromClient.type == BrokerPacket.EXCHANGE_ADD){
                     i = col1_list.indexOf(packetFromClient.symbol);
                     //doesnt yet exist - add
