@@ -67,10 +67,10 @@ public class OnlineBrokerHandlerThread extends Thread {
         boolean gotByePacket = false;
 		try {
 			/* stream to read from client */
-			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			BrokerPacket packetFromClient;
 			
-			/* stream to write back to client */
+            /* stream to write back to client */
 			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 			
 
