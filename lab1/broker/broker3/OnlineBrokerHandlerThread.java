@@ -118,9 +118,11 @@ public class OnlineBrokerHandlerThread extends Thread {
                             packetToForward.type = BrokerPacket.BROKER_FORWARD;
                             packetToForward.symbol = packetFromClient.symbol;
                             toForward.writeObject(packetToForward);
+                            
                             BrokerPacket packetFromForward = (BrokerPacket) fromForward.readObject(); 
                             packetToClient = packetFromForward;
-                            
+                            toClient.writeObject(packetToClient);
+                             
                             lookupSocket.close();
                             toLookup.close();
                             fromLookup.close();
@@ -155,6 +157,8 @@ public class OnlineBrokerHandlerThread extends Thread {
                         packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
                         packetToClient.type = BrokerPacket.BROKER_ERROR;
                     }
+                    toClient.writeObject(packetToClient);
+                    continue;
                 }
                 if(packetFromClient.type == BrokerPacket.EXCHANGE_ADD){
                     i = col1_list.indexOf(packetFromClient.symbol);
