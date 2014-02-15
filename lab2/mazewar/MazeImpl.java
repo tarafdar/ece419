@@ -206,12 +206,6 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 addClient(client, point);
         }
         
-        public synchronized void addClient(Client client, int x, int y) {
-                assert(client != null);
-                // Pick a random starting point, and check to see if it is already occupied
-                Point point = new Point(x,y);
-                addClient(client, point);
-        }
         
         public synchronized Point getClientPoint(Client client) {
                 assert(client != null);
@@ -435,6 +429,15 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 while(cell.isWall(d)) {
                   d = Direction.random();
                 }
+                cell.setContents(client);
+                clientMap.put(client, new DirectedPoint(point, d));
+                client.registerMaze(this);
+                client.addClientListener(this);
+                update();
+                notifyClientAdd(client);
+        }
+        
+        private synchronized void addClient(Client client, Point point, Direction d) {
                 cell.setContents(client);
                 clientMap.put(client, new DirectedPoint(point, d));
                 client.registerMaze(this);
