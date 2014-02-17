@@ -27,9 +27,11 @@ USA.
  * @version $Id: LocalClient.java 343 2004-01-24 03:43:45Z geoffw $
  */
 
+import java.io.ObjectOutputStream;
+import java.io.IOException; 
 
 public abstract class LocalClient extends Client {
-
+        public ObjectOutputStream out;
         /** 
          * Create a {@link Client} local to this machine.
          * @param name The name of this {@link Client}.
@@ -37,13 +39,93 @@ public abstract class LocalClient extends Client {
         public LocalClient(String name) {
             super(name);
             assert(name != null);
-		    
-
-
-
-
+        }
+        
+        public LocalClient(String name, ObjectOutputStream out) {
+            super(name);
+            assert(name != null);
+            this.out = out;
         }
 
+        public void enqueueQuit(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_QUIT;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+
+        public void enqueueForward(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_FORWARD;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+        
+        public void enqueueBackward(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_BACKWARD;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+        
+        public void enqueueRight(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_RIGHT;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+        
+        public void enqueueLeft(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_LEFT;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+        
+        public void enqueueFire(){
+		   try{
+                ObjectOutputStream out = null;
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_FIRE;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+       }
+        
+              
         /**
          * Fill in here??
          */

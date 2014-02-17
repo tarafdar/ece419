@@ -35,6 +35,7 @@ public abstract class Maze {
      * @return A {@link Point} where the method <code>getX</code> returns the maximum X 
      * coordintate, and the method <code>getY</code> returns the maximum Y coordinate. 
      */
+
     public abstract Point getSize(); 
 
     /**
@@ -57,6 +58,7 @@ public abstract class Maze {
      * @param client {@link Client} to be added to the {@link Maze}.
      */
     public abstract void addClient(Client client);
+    public abstract void addClient(Client client, Point point, Direction d);
 
     /** 
      * Create a new {@link Projectile} from the specified {@link Client}

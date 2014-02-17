@@ -27,6 +27,10 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
 import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+import java.io.IOException; 
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -36,7 +40,7 @@ import java.io.Serializable;
  */
 
 public class Mazewar extends JFrame {
-        public serverListener ServerListenerThread = null;
+        //public serverListener ServerListenerThread = null;
         /**
          * The default width of the {@link Maze}.
          */
@@ -119,7 +123,7 @@ public class Mazewar extends JFrame {
         /** 
          * The place where all the pieces are put together. 
          */
-        public Mazewar() {
+        public Mazewar(){
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -149,8 +153,8 @@ public class Mazewar extends JFrame {
 
                     clientSocket = new Socket(hostname, port);
                     
-			        out = new ObjectOutputStream(echoSocket.getOutputStream());
-			        in = new ObjectInputStream(echoSocket.getInputStream());
+			        out = new ObjectOutputStream(clientSocket.getOutputStream());
+			        in = new ObjectInputStream(clientSocket.getInputStream());
 
 
 
@@ -162,11 +166,32 @@ public class Mazewar extends JFrame {
 		        	System.exit(1);
 		        }
                 
-                mazeWarPacket packetToServer = new initializePacket();
-                packetToServer.clientName = name;
-                packetToServer.type = mazeWarPacket.CLIENT_INIT;
-                out.writeObject(packetToServer);
-                
+                try{
+                    mazeWarPacket packetToServer = new mazeWarPacket();
+                    packetToServer.clientName = name;
+                    packetToServer.type = mazeWarPacket.CLIENT_INIT;
+                    out.writeObject(packetToServer);
+                    guiClient = new GUIClient(name, out);
+                    maze.addClient(guiClient);
+                    this.addKeyListener(guiClient);
+                    mazeWarPacket packetFromServer = new mazeWarPacket();
+                    packetFromServer = (mazeWarPacket) in.readObject();
+                    int i; 
+                    {
+                            for(i=0; i<packetFromServer.numPlayers; i++){
+                                 maze.addClient(new RemoteClient(packetFromServer.players[i]) , packetFromServer.point[i], packetFromServer.d[i]);
+                            }
+                    }
+
+                }
+                catch (IOException e){
+		        	System.err.println("ERROR: Couldn't get I/O for the connection.");
+		        	System.exit(1);
+                }
+                catch (ClassNotFoundException e){
+		        	System.err.println("ERROR: Class Not Found.");
+		        	System.exit(1);
+                }
             
                           
                 
@@ -174,21 +199,12 @@ public class Mazewar extends JFrame {
                 // here.
                 
                 // Create the GUIClient and connect it to the KeyListener queue
-                guiClient = new GUIClient(name);
-                maze.addClient(guiClient);
-                this.addKeyListener(guiClient);
                
-                serverListener = new serverListenerThread(hostname, port); 
+                //serverListener = new serverListenerThread(hostname, port); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
-                gamePacket packetFromServer = new gamePacket();
-                packetFromeServer = (gamePacket) in.readObject();
-                int i; 
-                {
-                        for(i=0; i<packetFromServer.numPlayers; i++)
-                             maze.addClient(new RemoteClient(packetFromServer.players[i], xCoord[i], yCoord[i]));
-                }
-
+               
+                
                 
                 // Create the panel that will display the maze.
                 overheadPanel = new OverheadMazePanel(maze, guiClient);

@@ -19,6 +19,7 @@ USA.
 
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.io.ObjectOutputStream;
 
 /**
  * An implementation of {@link LocalClient} that is controlled by the keyboard
@@ -32,34 +33,51 @@ public class GUIClient extends LocalClient implements KeyListener {
         /**
          * Create a GUI controlled {@link LocalClient}.  
          */
-        public GUIClient(String name) {
-                super(name);
+        public GUIClient(String name, ObjectOutputStream out) {
+                super(name, out);
         }
         
         /**
          * Handle a key press.
          * @param e The {@link KeyEvent} that occurred.
          */
-        public void keyPressed(KeyEvent e) {
+        public void keyPressed(KeyEvent e){
                 // If the user pressed Q, invoke the cleanup code and quit. 
-                if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
-                        Mazewar.quit();
-                // Up-arrow moves forward.
-                } else if(e.getKeyCode() == KeyEvent.VK_UP) {
-                        forward();
-                // Down-arrow moves backward.
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        backup();
-                // Left-arrow turns left.
-                } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        turnLeft();
-                // Right-arrow turns right.
-                } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        turnRight();
-                // Spacebar fires.
-                } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        fire();
-                }
+                //try{
+                    if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
+                            enqueueQuit();                                                
+                            //Mazewar.quit();
+                    // Up-arrow moves forward.
+                    } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+                            enqueueForward();                                                
+                            
+                            //forward();
+                    // Down-arrow moves backward.
+                    } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+                            enqueueBackward();                                                
+                            
+                            //backup();
+                    // Left-arrow turns left.
+                    } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+                            enqueueLeft();                                                
+                            
+                            //turnLeft();
+                    // Right-arrow turns right.
+                    } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            enqueueRight();                                                
+                            
+                            //turnRight();
+                    // Spacebar fires.
+                    } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                            enqueueFire();                                                
+                            
+                            //fire();
+                    }
+                 //}
+               //  catch(IOException e){
+		       // 	System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       // 	System.exit(1);
+               // }
         }
         
         /**
