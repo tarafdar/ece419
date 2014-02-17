@@ -49,7 +49,6 @@ public abstract class LocalClient extends Client {
 
         public void enqueueQuit(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_QUIT;
                 out.writeObject(packetToServer);
@@ -62,7 +61,6 @@ public abstract class LocalClient extends Client {
 
         public void enqueueForward(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_FORWARD;
                 out.writeObject(packetToServer);
@@ -75,7 +73,6 @@ public abstract class LocalClient extends Client {
         
         public void enqueueBackward(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_BACKWARD;
                 out.writeObject(packetToServer);
@@ -88,7 +85,6 @@ public abstract class LocalClient extends Client {
         
         public void enqueueRight(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_RIGHT;
                 out.writeObject(packetToServer);
@@ -101,7 +97,6 @@ public abstract class LocalClient extends Client {
         
         public void enqueueLeft(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_LEFT;
                 out.writeObject(packetToServer);
@@ -114,7 +109,6 @@ public abstract class LocalClient extends Client {
         
         public void enqueueFire(){
 		   try{
-                ObjectOutputStream out = null;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_FIRE;
                 out.writeObject(packetToServer);
