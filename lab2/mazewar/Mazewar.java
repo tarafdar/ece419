@@ -16,7 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
-  
+import java.util.Comparator;
+import java.util.PriorityQueue;  
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -31,7 +32,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.io.IOException; 
-
+import java.util.ArrayList;
 /**
  * The entry point and glue code for the game.  It also contains some helpful
  * global utility methods.
@@ -40,6 +41,12 @@ import java.io.IOException;
  */
 
 public class Mazewar extends JFrame {
+        public boolean quit;
+        PriorityQueue <mazeWarPacket> pq = null; 
+        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
+        public ServerListenerThread serverListener = null;
+        public int local_sequence_number = 0;
+        ArrayList<Client> clientList = new ArrayList<Client>(); 
         //public serverListener ServerListenerThread = null;
         /**
          * The default width of the {@link Maze}.
@@ -126,7 +133,6 @@ public class Mazewar extends JFrame {
         public Mazewar(){
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
-                
                 // Create the maze
                 maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
                 assert(maze != null);
@@ -171,15 +177,24 @@ public class Mazewar extends JFrame {
                     packetToServer.clientName = name;
                     packetToServer.type = mazeWarPacket.CLIENT_INIT;
                     out.writeObject(packetToServer);
-                    guiClient = new GUIClient(name, out);
-                    maze.addClient(guiClient);
+                    guiClient = new GUIClient(name, out, this);
+                    //maze.addClient(guiClient);
                     this.addKeyListener(guiClient);
+                    clientList.add(guiClient);
                     mazeWarPacket packetFromServer = new mazeWarPacket();
                     packetFromServer = (mazeWarPacket) in.readObject();
-                    int i; 
+                    int i;
+                    RemoteClient remoteclient; 
                     {
                             for(i=0; i<packetFromServer.numPlayers; i++){
-                                 maze.addClient(new RemoteClient(packetFromServer.players[i]) , packetFromServer.point[i], packetFromServer.d[i]);
+                                 if(!name.equals(packetFromServer.players[i])){
+                                    remoteclient = new RemoteClient(packetFromServer.players[i]);
+                                    maze.addClient(remoteclient , packetFromServer.point[i], packetFromServer.d[i]);
+                                    clientList.add(remoteclient);
+                                 }
+                                 else
+                                    maze.addClient(guiClient);
+
                             }
                     }
 
@@ -200,7 +215,8 @@ public class Mazewar extends JFrame {
                 
                 // Create the GUIClient and connect it to the KeyListener queue
                
-                //serverListener = new serverListenerThread(hostname, port); 
+                new ServerListenerThread(this, in).start(); 
+                new ServerProcessThread(this).start(); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                

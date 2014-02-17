@@ -32,6 +32,7 @@ import java.io.IOException;
 
 public abstract class LocalClient extends Client {
         public ObjectOutputStream out;
+        public Mazewar mazewar;
         /** 
          * Create a {@link Client} local to this machine.
          * @param name The name of this {@link Client}.
@@ -41,16 +42,18 @@ public abstract class LocalClient extends Client {
             assert(name != null);
         }
         
-        public LocalClient(String name, ObjectOutputStream out) {
+        public LocalClient(String name, ObjectOutputStream out, Mazewar mazewar) {
             super(name);
             assert(name != null);
             this.out = out;
+            this.mazewar = mazewar;
         }
 
         public void enqueueQuit(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_QUIT;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -63,6 +66,7 @@ public abstract class LocalClient extends Client {
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_FORWARD;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -75,6 +79,7 @@ public abstract class LocalClient extends Client {
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_BACKWARD;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -87,6 +92,7 @@ public abstract class LocalClient extends Client {
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_RIGHT;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -99,6 +105,7 @@ public abstract class LocalClient extends Client {
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_LEFT;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -111,6 +118,7 @@ public abstract class LocalClient extends Client {
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.CLIENT_FIRE;
+                packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
            catch(IOException e){
@@ -118,6 +126,8 @@ public abstract class LocalClient extends Client {
 		       	System.exit(1);
            }
        }
+       
+       
         
               
         /**
