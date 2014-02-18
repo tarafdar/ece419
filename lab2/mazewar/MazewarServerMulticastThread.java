@@ -26,6 +26,7 @@ public class MazewarServerMulticastThread extends Thread {
         packet.d = server.d;
         packet.point = server.point;
         packet.sequence_number = seqNum;
+        packet.numPlayers = server.numPlayers;
          
         synchronized (server.actionQueue) {
             server.actionQueue.offer(packet);
