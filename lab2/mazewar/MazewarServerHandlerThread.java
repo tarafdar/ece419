@@ -58,26 +58,47 @@ public class MazewarServerHandlerThread extends Thread {
                 }
 				
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_FIRE) {
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
                     continue;                    
                 }
                 
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_FORWARD) {
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
                     continue;                    
-                                    
                 }
 
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_BACKWARD) {
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
                     continue;                    
-                                    
                 }
                 
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_RIGHT) {
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
                     continue;                    
-                                    
                 }
 
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_LEFT) {
-                
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
                     continue;                    
                 }
 
