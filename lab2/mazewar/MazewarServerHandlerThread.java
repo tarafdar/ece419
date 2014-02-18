@@ -25,7 +25,7 @@ public class MazewarServerHandlerThread extends Thread {
 			mazeWarPacket packetFromClient;
 			
 			int seqNum;
-            System.err.println("Started handler thread - id " + id);
+            System.out.println("Started handler thread - id " + id);
 			while (( packetFromClient = (mazeWarPacket) fromClient.readObject()) != null) {
 				
 			    //client connecting
@@ -45,10 +45,11 @@ public class MazewarServerHandlerThread extends Thread {
                     while(cell.isWall(d)) {
                         d = Direction.random();
                     }
+                    System.out.println("setting client " + packetFromClient.clientName + " to " + d.toString());
                     cell.setContents(true);
                     server.point[id] = point;
                     server.d[id] = d;
-                    System.err.println("recieved client init packet - id " + id + "from client" + packetFromClient.clientName);
+                    System.out.println("recieved client init packet - id " + id + "from client" + packetFromClient.clientName);
                     
                     server.players[id] = packetFromClient.clientName;
                     server.numConnected.getAndIncrement();
