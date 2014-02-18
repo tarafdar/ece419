@@ -19,7 +19,7 @@ public class OnlineBrokerHandlerThread extends Thread {
         this.col2_list.clear();
         try
         {
-            br = new BufferedReader(new FileReader("input.txt"));
+            br = new BufferedReader(new FileReader("nasdaq"));
         }
         catch(FileNotFoundException fnfe)
         {
@@ -46,7 +46,7 @@ public class OnlineBrokerHandlerThread extends Thread {
         int i;
         File file;
         PrintWriter writer;
-        file = new File("input.txt");
+        file = new File("nasdaq");
         try
         {
             writer = new PrintWriter(file);

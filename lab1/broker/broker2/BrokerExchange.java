@@ -55,7 +55,7 @@ public class BrokerExchange{
             
             String [] input_args = userInput.split(" ");
 
-            if(input_args[0].equals("add")){
+            if(input_args[0].equals("add") && input_args.length == 2){
                 packetToServer.type = BrokerPacket.EXCHANGE_ADD;
                 packetToServer.symbol = input_args[1];
 			    out.writeObject(packetToServer);
@@ -69,7 +69,7 @@ public class BrokerExchange{
                 else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
                     errorHandling(input_args[1], packetFromServer);
             }
-            if(input_args[0].equals("update")){
+            else if(input_args[0].equals("update") && input_args.length == 3){
                 packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
                 packetToServer.symbol = input_args[1] + " " + input_args[2];
 			    out.writeObject(packetToServer);
@@ -83,7 +83,7 @@ public class BrokerExchange{
                 else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
                     errorHandling(input_args[1], packetFromServer);
             }
-            if(input_args[0].equals("remove")){
+            else if(input_args[0].equals("remove") && input_args.length == 2){
                 packetToServer.type = BrokerPacket.EXCHANGE_REMOVE;
                 packetToServer.symbol = input_args[1];
 			    out.writeObject(packetToServer);
@@ -97,6 +97,9 @@ public class BrokerExchange{
 			    	System.out.println(input_args[1] + " removed.");
                 else if (packetFromServer.type == BrokerPacket.BROKER_ERROR)
                     errorHandling(input_args[1], packetFromServer);
+            }
+            else {
+			    System.out.println("Invalid command.");
             }
 			/* re-print console prompt */
 			System.out.print(">");

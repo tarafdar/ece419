@@ -549,21 +549,23 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 update();
                 return true; 
         }
-       
+        
         /**
          * The random number generator used by the {@link Maze}.
          */
-        private final Random randomGen;
-
+        //private final Random randomGen;
+        public final Random randomGen;
         /**
          * The maximum X coordinate of the {@link Maze}.
          */
-        private final int maxX;
-
+        //private final int maxX;
+        public final int maxX;
+        
         /**
          * The maximum Y coordinate of the {@link Maze}.
          */
-        private final int maxY;
+        //private final int maxY;
+        public final int maxY;
 
         /** 
          * The {@link Vector} of {@link Vector}s holding the
@@ -683,7 +685,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
          * A concrete implementation of the {@link Cell} class that
          * special to this implementation of {@link Maze}s.
          */
-        private class CellImpl extends Cell implements Serializable {
+        public class CellImpl extends Cell implements Serializable {
                 /**
                  * Has this {@link CellImpl} been visited while
                  * constructing the {@link Maze}.
@@ -865,7 +867,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
          * @param point Location in the {@link Maze}.
          * @return The {@link CellImpl} representing that location.
          */
-        private CellImpl getCellImpl(Point point) {
+        public CellImpl getCellImpl(Point point) {
                 assert(point != null);
                 Object o1 = mazeVector.get(point.getX());
                 assert(o1 instanceof Vector);

@@ -17,7 +17,7 @@ public class OnlineBrokerHandlerThread extends Thread {
         String line;
         try
         {
-            br = new BufferedReader(new FileReader("input.txt"));
+            br = new BufferedReader(new FileReader("nasdaq"));
         }
         catch(FileNotFoundException fnfe)
         {
@@ -66,16 +66,9 @@ public class OnlineBrokerHandlerThread extends Thread {
 				/* just echo in this example */
 				if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
 					//System.out.println("From Client: " + packetFromClient.message);
-			        System.out.println("packet from client symbol " + packetFromClient.symbol + "END");
                     for(i=0;i<col2_array.length;i++){
-			            System.out.println("col1[i] " + col1_array[i] + " col2 [i] " + col2_array[i]);
                         if(col1_array[i].equals(packetFromClient.symbol)){
                             packetToClient.quote = Long.parseLong(col2_array[i], 10);
-                            System.out.println("found!!...sending " + col2_array[i]);
-                        }
-                        else{
-                            System.out.println("no match 1= " + col1_array[i] + "END 2= " + packetFromClient.symbol); 
-
                         }
                     }
                     if (packetToClient.quote == null) 
