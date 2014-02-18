@@ -12,7 +12,9 @@ public class MazewarServerMulticastThread extends Thread {
 	public void run() {
         int seqNum;
         //wait until all the client info is populated
+        
         while (server.numConnected.get() != server.numPlayers);
+        System.out.println("recieved all of the connections"); 
         //create the first multicast packet with all of the initial positions directions and names to be broadcast to the client
         mazeWarPacket packet = new mazeWarPacket();
         //synchronized (server.currentSequenceNumber) {
@@ -28,14 +30,17 @@ public class MazewarServerMulticastThread extends Thread {
         synchronized (server.actionQueue) {
             server.actionQueue.offer(packet);
         }
-        
+        System.out.println("finished creating first broadcast packet"); 
         int i;
 		mazeWarPacket packetFromQueue;
 		try {
 			/* streams to multicast to clients */
 			while (true) {
                 packetFromQueue = server.actionQueue.take();
+                System.out.println("number of players = " + server.numPlayers);
                 for (i=0; i<server.numPlayers; i++) {
+                   if (server.outputStreams.get(i) == null) 
+                       System.out.println("outputStream of id " + i + " is null"); 
                    server.outputStreams.get(i).writeObject(packetFromQueue);
                 }
             }    

@@ -1,6 +1,8 @@
 import java.net.*;
 import java.io.*;
 import java.util.Random;
+//import java.lang.System;
+import static java.lang.System.*;
 
 public class MazewarServerHandlerThread extends Thread {
 	//private Socket socket = null;
@@ -23,7 +25,7 @@ public class MazewarServerHandlerThread extends Thread {
 			mazeWarPacket packetFromClient;
 			
 			int seqNum;
-
+            System.err.println("Started handler thread - id " + id);
 			while (( packetFromClient = (mazeWarPacket) fromClient.readObject()) != null) {
 				
 			    //client connecting
@@ -46,8 +48,11 @@ public class MazewarServerHandlerThread extends Thread {
                     cell.setContents(true);
                     server.point[id] = point;
                     server.d[id] = d;
+                    System.err.println("recieved client init packet - id " + id + "from client" + packetFromClient.clientName);
+                    
                     server.players[id] = packetFromClient.clientName;
                     server.numConnected.getAndIncrement();
+                    System.err.println("finished setting up client");
                     continue; 
                 }
 				
