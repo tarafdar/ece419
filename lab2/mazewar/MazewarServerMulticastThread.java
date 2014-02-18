@@ -38,7 +38,8 @@ public class MazewarServerMulticastThread extends Thread {
 			/* streams to multicast to clients */
 			while (true) {
                 packetFromQueue = server.actionQueue.take();
-                System.out.println("number of players = " + server.numPlayers);
+                //System.out.println("number of players = " + server.numPlayers);
+                System.out.println("Multicasting packet on server from client " + packetFromQueue.clientName + " of type " +  packetFromQueue.typeToString()); 
                 for (i=0; i<server.numPlayers; i++) {
                    if (server.outputStreams.get(i) == null) 
                        System.out.println("outputStream of id " + i + " is null"); 

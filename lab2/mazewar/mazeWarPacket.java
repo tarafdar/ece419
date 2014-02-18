@@ -22,6 +22,27 @@ public class mazeWarPacket implements Serializable{
 
     public int sequence_number;
     public int type = BOARD_SETUP;
-
-
+    
+    public String typeToString() {
+        switch(this.type) {
+            case BOARD_SETUP:
+                    return "BOARD_SETUP";
+            case CLIENT_FIRE:
+                    return "CLIENT_FIRE";
+            case CLIENT_FORWARD:
+                    return "CLIENT_FORWARD";
+            case CLIENT_BACKWARD:
+                    return "CLIENT_BACKWARD";
+            case CLIENT_RIGHT:
+                    return "CLIENT_RIGHT";
+            case CLIENT_LEFT:
+                    return "CLIENT_LEFT";
+            case CLIENT_INIT:
+                    return "CLIENT_INIT";
+            case CLIENT_QUIT:
+                    return "CLIENT_QUIT";
+        }
+        //impossible
+        return null;
+    }
 }
