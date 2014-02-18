@@ -42,7 +42,7 @@ public class Mazewar extends JFrame {
         public static Socket clientSocket = null;
 		public static ObjectOutputStream out = null;
 		public static ObjectInputStream in = null;
-        public boolean quit;
+        public boolean quit = false;
         public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         public ServerListenerThread serverListener = null;
         public int local_sequence_number = 0;
@@ -148,7 +148,7 @@ public class Mazewar extends JFrame {
                 if((name == null) || (name.length() == 0)) {
                   Mazewar.quit();
                 }
-                
+                quit = false;                
                 
                 try{
                     String hostname = "localhost";
@@ -184,16 +184,23 @@ public class Mazewar extends JFrame {
                     RemoteClient remoteclient; 
                     {
                             for(i=0; i<packetFromServer.numPlayers; i++){
+    //                             System.out.println("Player " + i + " is " + packetFromServer.players[i] + " and is looking "  + packetFromServer.d[i].toString() + " at point " + packetFromServer.point[i].getX() + "," + packetFromServer.point[i].getY());
+                                  
                                  if(!name.equals(packetFromServer.players[i])){
                                     remoteclient = new RemoteClient(packetFromServer.players[i]);
                                     maze.addClient(remoteclient , packetFromServer.point[i], packetFromServer.d[i]);
                                     clientList.add(remoteclient);
+  //                                  System.out.println("point after add " + maze.getClientPoint(remoteclient).getX() + "," + maze.getClientPoint(remoteclient).getY() + " facing " + maze.getClientOrientation(remoteclient).toString());  
                                  }
-                                 else
-                                    maze.addClient(guiClient);
-
+                                 else{
+                                    maze.addClient(guiClient, packetFromServer.point[i], packetFromServer.d[i]);
+//                                    System.out.println("point after add " + maze.getClientPoint(guiClient).getX() + "," + maze.getClientPoint(guiClient).getY() + " facing " + maze.getClientOrientation(guiClient).toString());  
+                                }
                             }
                     }
+                    overheadPanel = new OverheadMazePanel(maze, guiClient);
+                    assert(overheadPanel != null);
+                    maze.addMazeListener(overheadPanel);
 
                 }
                 catch (IOException e){
@@ -212,17 +219,14 @@ public class Mazewar extends JFrame {
                 
                 // Create the GUIClient and connect it to the KeyListener queue
                
-                new ServerListenerThread(this, in).start(); 
-                new ServerProcessThread(this).start(); 
+                //new ServerListenerThread(this, in).start(); 
+                //new ServerProcessThread(this).start(); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                
                 
                 
                 // Create the panel that will display the maze.
-                overheadPanel = new OverheadMazePanel(maze, guiClient);
-                assert(overheadPanel != null);
-                maze.addMazeListener(overheadPanel);
                 
                 // Don't allow editing the console from the GUI
                 console.setEditable(false);

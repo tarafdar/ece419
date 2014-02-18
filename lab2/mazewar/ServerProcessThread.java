@@ -1,20 +1,14 @@
 
 import java.net.*;
 import java.io.*;
-import java.util.Comparator;
-import java.util.PriorityQueue;  
 
 public class ServerProcessThread extends Thread{
     private Mazewar mazewar;
-    static class PQsort implements Comparator<mazeWarPacket>{
-        public int compare(mazeWarPacket a, mazeWarPacket b){
-            return a.sequence_number - b.sequence_number;
-        }
-    }
 
 
     public ServerProcessThread(Mazewar mazewar){
         super("ServerProcessThread");
+        this.mazewar = mazewar;
     }
 
     public void run(){

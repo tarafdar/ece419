@@ -207,10 +207,12 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 addClient(client, point);
         }
         
-        public synchronized void addClient(Client client, Point point, Direction d) {
-                CellImpl cell = getCellImpl(point);
+        public synchronized void addClient(Client client, Point point1, Direction d1) {
+                System.out.println("Client is " + client.getName() + " my point is " + point1.getX() + "," + point1.getY() + " facing " + d1.toString());
+                
+                CellImpl cell = getCellImpl(point1);
                 cell.setContents(client);
-                clientMap.put(client, new DirectedPoint(point, d));
+                clientMap.put(client, new DirectedPoint(point1, d1));
                 client.registerMaze(this);
                 client.addClientListener(this);
                 update();
