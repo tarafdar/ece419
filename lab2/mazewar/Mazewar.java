@@ -197,7 +197,7 @@ public class Mazewar extends JFrame {
 
                 }
                 catch (IOException e){
-		        	System.err.println("ERROR: Couldn't get I/O for the connection.");
+		        	System.err.println("ERROR: Couldn't get I/O for the connection. NUMBER 2");
 		        	System.exit(1);
                 }
                 catch (ClassNotFoundException e){
