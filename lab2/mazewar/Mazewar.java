@@ -16,8 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
-import java.util.Comparator;
-import java.util.PriorityQueue;  
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -41,13 +39,15 @@ import java.util.ArrayList;
  */
 
 public class Mazewar extends JFrame {
+        public static Socket clientSocket = null;
+		public static ObjectOutputStream out = null;
+		public static ObjectInputStream in = null;
         public boolean quit;
-        PriorityQueue <mazeWarPacket> pq = null; 
         public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         public ServerListenerThread serverListener = null;
         public int local_sequence_number = 0;
         ArrayList<Client> clientList = new ArrayList<Client>(); 
-        //public serverListener ServerListenerThread = null;
+        
         /**
          * The default width of the {@link Maze}.
          */
@@ -149,9 +149,6 @@ public class Mazewar extends JFrame {
                   Mazewar.quit();
                 }
                 
-                Socket clientSocket = null;
-		        ObjectOutputStream out = null;
-		        ObjectInputStream in = null;
                 
                 try{
                     String hostname = "localhost";
