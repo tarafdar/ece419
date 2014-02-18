@@ -27,7 +27,7 @@ public class MazewarServer extends MazeImpl {
     
     public MazewarServer(String[] args) {
         //maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
-        super(new Point(mazeWidth,mazeHeight),mazeSeed);
+        super(new Point(mazeWidth,mazeHeight),mazeSeed, "server");
         numConnected = new AtomicInteger();
         numPlayers = 0;
         currentSequenceNumber = new AtomicInteger();

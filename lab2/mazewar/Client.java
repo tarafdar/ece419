@@ -182,6 +182,14 @@ public abstract class Client {
         }
         
         
+        protected void killed(Client target, Point point, Direction d) {
+                assert(maze != null);
+
+                maze.killed(this, target, point, d); 
+
+
+        }
+            
         /** 
          * Notify listeners that the client moved forward.
          */

@@ -13,6 +13,7 @@ public class mazeWarPacket implements Serializable{
     public static final int CLIENT_LEFT = 50;
     public static final int CLIENT_INIT = 60;
     public static final int CLIENT_QUIT = 70;
+    public static final int CLIENT_KILLED = 80;
 
 
     public int numPlayers = 0;
@@ -41,6 +42,9 @@ public class mazeWarPacket implements Serializable{
                     return "CLIENT_INIT";
             case CLIENT_QUIT:
                     return "CLIENT_QUIT";
+            case CLIENT_KILLED:
+                    return "CLIENT_KILLED";
+
         }
         //impossible
         return null;

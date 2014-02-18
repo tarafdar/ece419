@@ -102,6 +102,15 @@ public class MazewarServerHandlerThread extends Thread {
                     continue;                    
                 }
 
+                else if (packetFromClient.type == mazeWarPacket.CLIENT_KILLED) {
+                    seqNum = server.currentSequenceNumber.getAndIncrement();
+                    packetFromClient.sequence_number = seqNum;
+                    synchronized (server.actionQueue) {
+                        server.actionQueue.offer(packetFromClient);
+                    }
+                    continue;                    
+                }
+
                 else if (packetFromClient.type == mazeWarPacket.CLIENT_QUIT) {
                     gotByePacket = true;
                     //synchronized (server.currentSequenceNumber) {

@@ -45,7 +45,7 @@ public class Mazewar extends JFrame {
         public boolean quit = false;
         public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         public ServerListenerThread serverListener = null;
-        public int local_sequence_number = 0;
+        public int local_sequence_number = 1;
         ArrayList<Client> clientList = new ArrayList<Client>(); 
         
         /**
@@ -134,7 +134,12 @@ public class Mazewar extends JFrame {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 // Create the maze
-                maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
+                // Throw up a dialog to get the GUIClient name.
+                String name = JOptionPane.showInputDialog("Enter your name");
+                if((name == null) || (name.length() == 0)) {
+                  Mazewar.quit();
+                }
+                maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed, name);
                 assert(maze != null);
                 
                 // Have the ScoreTableModel listen to the maze to find
@@ -143,11 +148,6 @@ public class Mazewar extends JFrame {
                 assert(scoreModel != null);
                 maze.addMazeListener(scoreModel);
                 
-                // Throw up a dialog to get the GUIClient name.
-                String name = JOptionPane.showInputDialog("Enter your name");
-                if((name == null) || (name.length() == 0)) {
-                  Mazewar.quit();
-                }
                 quit = false;                
                 
                 try{
@@ -219,8 +219,8 @@ public class Mazewar extends JFrame {
                 
                 // Create the GUIClient and connect it to the KeyListener queue
                
-                //new ServerListenerThread(this, in).start(); 
-                //new ServerProcessThread(this).start(); 
+                new ServerListenerThread(this, in).start(); 
+                new ServerProcessThread(this).start(); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                

@@ -126,7 +126,24 @@ public abstract class LocalClient extends Client {
 		       	System.exit(1);
            }
        }
-       
+        
+        
+       public void enqueueKilled(String target, Point point, Direction d){
+		   try{
+                mazeWarPacket packetToServer = new mazeWarPacket();
+                packetToServer.type = mazeWarPacket.CLIENT_KILLED;
+                packetToServer.clientName = this.getName();
+                packetToServer.players[0] = target;
+                packetToServer.point[0] = point;
+                packetToServer.d[0] = d;
+                out.writeObject(packetToServer);
+           }
+           catch(IOException e){
+		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		       	System.exit(1);
+           }
+           
+       }       
        
         
               
