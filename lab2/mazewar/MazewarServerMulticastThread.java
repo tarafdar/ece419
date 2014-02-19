@@ -41,9 +41,9 @@ public class MazewarServerMulticastThread extends Thread {
                 //System.out.println("number of players = " + server.numPlayers);
                 System.out.println("Multicasting packet on server from client " + packetFromQueue.clientName + " of type " +  packetFromQueue.typeToString()); 
                 for (i=0; i<server.numPlayers; i++) {
-                   if (server.outputStreams.get(i) == null) 
-                       System.out.println("outputStream of id " + i + " is null"); 
-                   server.outputStreams.get(i).writeObject(packetFromQueue);
+                   if (server.outputStreams.get(i) != null) 
+                        server.outputStreams.get(i).writeObject(packetFromQueue);
+                  //     System.out.println("outputStream of id " + i + " is null"); 
                 }
             }    
 
