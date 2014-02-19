@@ -23,3 +23,5 @@ Assumptions
 
 
 To compile please run make clean first and then make
+eg. make clean
+    make
