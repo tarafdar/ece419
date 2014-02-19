@@ -354,7 +354,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 while(true) {
                         if(!projectileMap.isEmpty()) {
                                 Iterator it = projectileMap.keySet().iterator();
-                                synchronezed(projectileMap) {
+                                synchronized(projectileMap) {
                                         while(it.hasNext()) {   
                                                 Object o = it.next();
                                                 assert(o instanceof Projectile);
