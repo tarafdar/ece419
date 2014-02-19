@@ -22,4 +22,4 @@ Assumptions
 1) Clients have UNIQUE names
 
 
-
+To compile please run make clean first and then make
