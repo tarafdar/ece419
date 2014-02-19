@@ -355,28 +355,33 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 while(true) {
                         if(!projectileMap.isEmpty()) {
                                 Iterator it = projectileMap.keySet().iterator();
+                                Iterator it2;
                                 synchronized(projectileMap) {
                                         while(it.hasNext()) {   
                                                 Object o = it.next();
                                                 assert(o instanceof Projectile);
                                                 deadPrj.addAll(moveProjectile((Projectile)o));
+                                                
+                                                it2 = deadPrj.iterator();
+                                                while(it2.hasNext()) {
+                                                    o = it2.next();
+                                                    assert(o instanceof Projectile);
+                                                    Projectile prj = (Projectile)o;
+                                                    projectileMap.remove(prj);
+                                                    clientFired.remove(prj.getOwner());
+                                                }
+                                                deadPrj.clear();
                                         }               
-                                        it = deadPrj.iterator();
-                                        while(it.hasNext()) {
-                                                Object o = it.next();
-                                                assert(o instanceof Projectile);
-                                                Projectile prj = (Projectile)o;
-                                                
-                                              //  DirectedPoint dp = (DirectedPoint)o;
-                                              //  CellImpl cell = getCellImpl(dp); 
-                                              //  cell.setContents(null);
-                                              //  update();
-                                                
-                                                projectileMap.remove(prj);
-                                                clientFired.remove(prj.getOwner());
-                                                
-                                        }
-                                        deadPrj.clear();
+                                      //  it = deadPrj.iterator();
+                                      //  while(it.hasNext()) {
+                                      //          Object o = it.next();
+                                      //          assert(o instanceof Projectile);
+                                      //          Projectile prj = (Projectile)o;
+                                      //          projectileMap.remove(prj);
+                                      //          clientFired.remove(prj.getOwner());
+                                      //          
+                                      //  }
+                                      //  deadPrj.clear();
                                 }
                         }
                         try {
