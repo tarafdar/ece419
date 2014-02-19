@@ -425,7 +425,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                 if(localName.equals(prj.getOwner().getName())){
                                     killClient(prj.getOwner(), (Client)contents);
                                 }
-                                cell.setContents(null);
+                                //cell.setContents(null);
                                 deadPrj.add(prj);
                                 update();
                                 return deadPrj;
