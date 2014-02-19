@@ -426,7 +426,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                 assert(contents instanceof Projectile);
                                 secondproj = (Projectile)contents;
                                 System.out.println("Projectile is destroying each other " + prj.getOwner().getName() + " is hitting " + secondproj.getOwner().getName());
-                                if(newCell.getContents() == null || cell.getContents()) 
+                                if(newCell.getContents() == null || cell.getContents() == null) 
                                     System.out.println("one of the cells trying to clear is already empty");
                                 newCell.setContents(null);
                                 cell.setContents(null);
