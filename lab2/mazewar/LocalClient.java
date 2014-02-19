@@ -55,9 +55,10 @@ public abstract class LocalClient extends Client {
                 packetToServer.type = mazeWarPacket.CLIENT_QUIT;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
+                mazewar.quit = true;
            }
            catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		        System.err.println("ERROR: Couldn't get I/O for the connection. QUIT");
 		       	System.exit(1);
            }
        }

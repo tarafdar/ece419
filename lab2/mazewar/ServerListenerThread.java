@@ -19,12 +19,13 @@ public class ServerListenerThread extends Thread {
         while(!mazewar.quit){
            try{
                 packetFromServer = (mazeWarPacket) in.readObject(); 
+                
                 System.out.println("listener thread " + packetFromServer.clientName + " type " + packetFromServer.typeToString()); 
                 synchronized(mazewar.q){
                     mazewar.q.add(packetFromServer);
                 }
            }catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		        System.err.println("Connection from Server closed");
 		        System.exit(1);
            }catch(ClassNotFoundException e){
 		        System.err.println("ERROR: Class Not Found.");
