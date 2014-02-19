@@ -292,8 +292,10 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 Projectile prj = new Projectile(client);
                 
                 /* Write the new cell */
-                projectileMap.put(prj, newPoint);
-                newCell.setContents(prj);
+                synchronized (projectileMap) {
+                    projectileMap.put(prj, newPoint);
+                    newCell.setContents(prj);
+                }
                 notifyClientFired(client);
                 update();
                 return true; 
