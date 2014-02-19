@@ -391,7 +391,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                
                 //PROJECTILE DEBUG
                 
-                 System.out.println("PROJECTILE IS AT: (" + dp.getX() + " ," + dp.getY() + ")" );
+                 System.out.println("PROJECTILE IS AT: (" + dp.getX() + " ," + dp.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
                  
                 /* Check for a wall */
                 if(cell.isWall(d)) {
@@ -408,6 +408,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 
                 CellImpl newCell = getCellImpl(newPoint);
                 Object contents = newCell.getContents();
+                Projectile secondproj;
                 if(contents != null) {
                         // If it is a Client, kill it outright
                         if(contents instanceof Client) {
@@ -421,8 +422,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         } else {
                         // Bullets destroy each other
                                 assert(contents instanceof Projectile);
-                                
-                                System.out.println("Projectile is destroying each other");
+                                secondproj = (Projectile)contents;
+                                System.out.println("Projectile is destroying each other " + prj.getOwner().getName() + " is hitting " + secondproj.getOwner().getName());
                                 newCell.setContents(null);
                                 cell.setContents(null);
                                 deadPrj.add(prj);
