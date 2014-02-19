@@ -402,7 +402,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                
                 //PROJECTILE DEBUG
                 
-                 System.out.println("PROJECTILE IS AT: (" + dp.getX() + " ," + dp.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
+                 System.out.println("PROJECTILE IS STARTING AT: (" + dp.getX() + " ," + dp.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
                  
                 /* Check for a wall */
                 if(cell.isWall(d)) {
@@ -453,6 +453,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 /* Write the new cell */
                 projectileMap.put(prj, newPoint);
                 newCell.setContents(prj);
+                System.out.println("PROJECTILE MOVED TO: (" + newPoint.getX() + " ," + newPoint.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
                 update();
                 return deadPrj;
                 }
