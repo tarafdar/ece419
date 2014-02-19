@@ -366,8 +366,15 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                                 Object o = it.next();
                                                 assert(o instanceof Projectile);
                                                 Projectile prj = (Projectile)o;
+                                                
+                                                DirectedPoint dp = (DirectedPoint)o;
+                                                CellImpl cell = getCellImpl(dp); 
+                                                cell.setContents(null);
+                                                update();
+                                                
                                                 projectileMap.remove(prj);
                                                 clientFired.remove(prj.getOwner());
+                                                
                                         }
                                         deadPrj.clear();
                                 }
@@ -431,8 +438,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                     System.out.println("one of the cells trying to clear is already empty");
                                 if((dp.getX() == newPoint.getX()) && (dp.getY() == newPoint.getY()))
                                     System.out.println("both of the projectiles are at the same point");
-                                newCell.setContents(null);
-                                cell.setContents(null);
+                                //newCell.setContents(null);
+                                //cell.setContents(null);
                                 deadPrj.add(prj);
                                 deadPrj.add(contents);
                                 update();
