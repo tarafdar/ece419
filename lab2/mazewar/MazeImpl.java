@@ -406,9 +406,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 /* Check for a wall */
                 if(cell.isWall(d)) {
                         // If there is a wall, the projectile goes away.
-                        cell.setContents(null);
+                        //cell.setContents(null);
                         deadPrj.add(prj);
-                        update();
+                        //update();
                         return deadPrj;
                 }
                 
@@ -427,7 +427,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                 }
                                 //cell.setContents(null);
                                 deadPrj.add(prj);
-                                update();
+                                //update();
                                 return deadPrj;
                         } else {
                         // Bullets destroy each other
@@ -442,17 +442,17 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                 //cell.setContents(null);
                                 deadPrj.add(prj);
                                 deadPrj.add(contents);
-                                update();
+                                //update();
                                 return deadPrj;
                         }
                 }
 
                 /* Clear the old cell */
-                cell.setContents(null);
+                //cell.setContents(null);
                 /* Write the new cell */
                 projectileMap.put(prj, newPoint);
                 newCell.setContents(prj);
-                update();
+                //update();
                 return deadPrj;
         }
         /**
