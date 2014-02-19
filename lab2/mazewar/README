@@ -1,3 +1,7 @@
+TEAM-MEMBERS
+Jordan Zannier 997694810
+Naif Tarafdar 997590566
+
 RUN SERVER
 
 bash server.sh <port #> <number of clients waiting to connect>
