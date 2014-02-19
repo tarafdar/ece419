@@ -130,7 +130,7 @@ public class Mazewar extends JFrame {
         /** 
          * The place where all the pieces are put together. 
          */
-        public Mazewar(){
+        public Mazewar(String[] args){
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 // Create the maze
@@ -151,8 +151,8 @@ public class Mazewar extends JFrame {
                 quit = false;                
                 
                 try{
-                    String hostname = "localhost";
-                    int port = 4444;
+                    String hostname = args[0];
+                    int port = Integer.parseInt(args[1]);
 
                     clientSocket = new Socket(hostname, port);
                     
@@ -290,6 +290,6 @@ public class Mazewar extends JFrame {
         public static void main(String args[]) {
 
                 /* Create the GUI */
-                new Mazewar();
+                new Mazewar(args);
         }
 }
