@@ -388,7 +388,11 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 DirectedPoint dp = (DirectedPoint)o;
                 Direction d = dp.getDirection();
                 CellImpl cell = getCellImpl(dp);
+               
+                //PROJECTILE DEBUG
                 
+                 System.out.println("PROJECTILE IS AT: (" + dp.getX() + " ," + dp.getY() + ")" );
+                 
                 /* Check for a wall */
                 if(cell.isWall(d)) {
                         // If there is a wall, the projectile goes away.
@@ -417,6 +421,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         } else {
                         // Bullets destroy each other
                                 assert(contents instanceof Projectile);
+                                
+                                System.out.println("Projectile is destroying each other");
                                 newCell.setContents(null);
                                 cell.setContents(null);
                                 deadPrj.add(prj);
