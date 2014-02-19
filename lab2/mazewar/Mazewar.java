@@ -68,7 +68,7 @@ public class Mazewar extends JFrame {
         /**
          * The {@link Maze} that the game uses.
          */
-        private Maze maze = null;
+        public Maze maze = null;
 
         /**
          * The {@link GUIClient} for the game.
@@ -122,7 +122,9 @@ public class Mazewar extends JFrame {
                 // Put any network clean-up code you might have here.
                 // (inform other implementations on the network that you have 
                 //  left, etc.)
-                
+                out.close();
+                in.close(); 
+                clientSocket.close();
 
                 System.exit(0);
         }

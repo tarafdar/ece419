@@ -57,8 +57,13 @@ public class ServerProcessThread extends Thread{
                            }  
                         }   
                         
-                        //else if(mazewar.q.get(i).type == mazeWarPacket.CLIENT_QUIT)
-                          //  mazewar.clientList.get(j).
+                        else if(mazewar.q.get(i).type == mazeWarPacket.CLIENT_QUIT){
+                            mazewar.maze.removeClient(mazewar.clientList.get(j));
+
+                            
+
+
+                        }
                         synchronized(mazewar.q){
                             mazewar.q.remove(i);
                         }
