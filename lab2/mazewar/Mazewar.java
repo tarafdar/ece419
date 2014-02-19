@@ -122,10 +122,17 @@ public class Mazewar extends JFrame {
                 // Put any network clean-up code you might have here.
                 // (inform other implementations on the network that you have 
                 //  left, etc.)
-                out.close();
-                in.close(); 
-                clientSocket.close();
+                
+                try{
+                    out.close();
+                    in.close(); 
+                    clientSocket.close();
+                }
+                catch(IOException e){
+                    System.out.println("Exit error??");
+                    System.exit(1);
 
+                }
                 System.exit(0);
         }
        
