@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.HashMap;
-
+import java.util.concurrent.ConcurrentHashMap;
 /**
  * A concrete implementation of a {@link Maze}.  
  * @author Geoffrey Washburn &lt;<a href="mailto:geoffw@cis.upenn.edu">geoffw@cis.upenn.edu</a>&gt;
@@ -640,7 +640,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         /**
          * Mapping from {@link Projectile}s to {@link DirectedPoint}s. 
          */
-        private final Map projectileMap = new HashMap();
+        //private final Map projectileMap = new HashMap();
+        private final Map projectileMap = new ConcurrentHashMap();
         
         /**
          * The set of {@link Client}s that have {@link Projectile}s in 
