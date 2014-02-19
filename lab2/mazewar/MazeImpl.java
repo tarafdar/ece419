@@ -265,6 +265,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 if(cell.isWall(d)) {
                         return false;
                 }
+                synchronized(projectileMap) {
                 
                 DirectedPoint newPoint = new DirectedPoint(point.move(d), d);
                 /* Is the point withint the bounds of maze? */
@@ -290,7 +291,6 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 
                 
                 /* Write the new cell */
-                synchronized (projectileMap) {
                     clientFired.add(client);
                     Projectile prj = new Projectile(client);
                     projectileMap.put(prj, newPoint);
@@ -354,7 +354,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 while(true) {
                         if(!projectileMap.isEmpty()) {
                                 Iterator it = projectileMap.keySet().iterator();
-                                synchronized(projectileMap) {
+                                synchronezed(projectileMap) {
                                         while(it.hasNext()) {   
                                                 Object o = it.next();
                                                 assert(o instanceof Projectile);
