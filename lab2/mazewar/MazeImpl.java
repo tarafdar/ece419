@@ -367,10 +367,10 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                                 assert(o instanceof Projectile);
                                                 Projectile prj = (Projectile)o;
                                                 
-                                                DirectedPoint dp = (DirectedPoint)o;
-                                                CellImpl cell = getCellImpl(dp); 
-                                                cell.setContents(null);
-                                                update();
+                                              //  DirectedPoint dp = (DirectedPoint)o;
+                                              //  CellImpl cell = getCellImpl(dp); 
+                                              //  cell.setContents(null);
+                                              //  update();
                                                 
                                                 projectileMap.remove(prj);
                                                 clientFired.remove(prj.getOwner());
@@ -390,6 +390,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         /* Internals */
         
         private synchronized Collection moveProjectile(Projectile prj) {
+                synchronized(projectileMap){ 
                 Collection deadPrj = new LinkedList();
                 assert(prj != null);
                 
@@ -406,9 +407,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 /* Check for a wall */
                 if(cell.isWall(d)) {
                         // If there is a wall, the projectile goes away.
-                        //cell.setContents(null);
+                        cell.setContents(null);
                         deadPrj.add(prj);
-                        //update();
+                        update();
                         return deadPrj;
                 }
                 
@@ -425,9 +426,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                 if(localName.equals(prj.getOwner().getName())){
                                     killClient(prj.getOwner(), (Client)contents);
                                 }
-                                //cell.setContents(null);
+                                cell.setContents(null);
                                 deadPrj.add(prj);
-                                //update();
+                                update();
                                 return deadPrj;
                         } else {
                         // Bullets destroy each other
@@ -438,22 +439,23 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                                     System.out.println("one of the cells trying to clear is already empty");
                                 if((dp.getX() == newPoint.getX()) && (dp.getY() == newPoint.getY()))
                                     System.out.println("both of the projectiles are at the same point");
-                                //newCell.setContents(null);
-                                //cell.setContents(null);
+                                newCell.setContents(null);
+                                cell.setContents(null);
                                 deadPrj.add(prj);
                                 deadPrj.add(contents);
-                                //update();
+                                update();
                                 return deadPrj;
                         }
                 }
 
                 /* Clear the old cell */
-                //cell.setContents(null);
+                cell.setContents(null);
                 /* Write the new cell */
                 projectileMap.put(prj, newPoint);
                 newCell.setContents(prj);
-                //update();
+                update();
                 return deadPrj;
+                }
         }
         /**
          * Internal helper for adding a {@link Client} to the {@link Maze}.
