@@ -1,0 +1,21 @@
+RUN SERVER
+
+bash server.sh <port #> <number of clients waiting to connect>
+eg. bash server.sh 8000 4
+
+RUN CLIENT
+
+bash client.sh <hostname> <port #>
+eg. bash client.sh ug165.eecg.utoronto.ca 8000
+
+
+The server waits for the prespecified number of clients to join.  Once that number of clients joins, the game starts on all the clients!
+
+
+To quit press q from the respective client. The server can be killed by pressing ctrl+c on the server machine.
+
+Assumptions
+1) Clients have UNIQUE names
+
+
+
