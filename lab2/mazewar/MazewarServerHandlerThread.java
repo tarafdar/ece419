@@ -131,14 +131,17 @@ public class MazewarServerHandlerThread extends Thread {
 			
 			/* cleanup when client exits */
             server.inputStreams.get(id).close();
-            server.inputStreams.set(id, null);
+            //server.inputStreams.set(id, null);
             synchronized (server.outputStreams) {
                 server.outputStreams.get(id).close();
-                server.outputStreams.set(id, null);
+                //server.outputStreams.set(id, null);
+                server.sockets.get(id).close();
+                //server.sockets.set(id,null);
             }
-            server.sockets.get(id).close();
-            server.sockets.set(id,null);
-
+            //synchronized (server.sockets) {
+            //    server.sockets.get(id).close();
+            //    server.sockets.set(id,null);
+            //}
             //synchronized (server.numPlayers) {
             //    server.numPlayers--;
             //}
