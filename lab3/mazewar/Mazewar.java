@@ -206,7 +206,7 @@ public class Mazewar extends JFrame {
                     int i,j;
                     j=0;
                     
-                    for(i=0; i<packetFromServer.numPlayers; i++){
+                    for(i=0; i<packetFromServer.numPlayers - 1; i++){
                       
                         if(!packetFromServer.hostname.get(i).equals(localhost)){
                             
