@@ -5,15 +5,16 @@ public class mazeWarPacket implements Serializable{
     
     public String clientName;
 
-    public static final int BOARD_SETUP = 0;
-    public static final int CLIENT_FIRE = 10;
-    public static final int CLIENT_FORWARD = 20;
-    public static final int CLIENT_BACKWARD = 30;
-    public static final int CLIENT_RIGHT = 40;
-    public static final int CLIENT_LEFT = 50;
-    public static final int CLIENT_INIT = 60;
-    public static final int CLIENT_QUIT = 70;
-    public static final int CLIENT_KILLED = 80;
+    public static final int JOIN = 0;
+    public static final int FIRE = 10;
+    public static final int FORWARD = 20;
+    public static final int BACKWARD = 30;
+    public static final int RIGHT = 40;
+    public static final int LEFT = 50;
+    public static final int INIT = 60;
+    public static final int QUIT = 70;
+    public static final int KILLED = 80;
+    public static final int BULLET_TICK = 90;
 
 
     public int numPlayers = 0;
@@ -24,26 +25,29 @@ public class mazeWarPacket implements Serializable{
     public int sequence_number;
     public int type = BOARD_SETUP;
     
+    public String[] hostname;
+    public int[] port;
+    
     public String typeToString() {
         switch(this.type) {
-            case BOARD_SETUP:
+            case JOIN:
                     return "BOARD_SETUP";
-            case CLIENT_FIRE:
-                    return "CLIENT_FIRE";
-            case CLIENT_FORWARD:
-                    return "CLIENT_FORWARD";
-            case CLIENT_BACKWARD:
-                    return "CLIENT_BACKWARD";
-            case CLIENT_RIGHT:
-                    return "CLIENT_RIGHT";
-            case CLIENT_LEFT:
-                    return "CLIENT_LEFT";
-            case CLIENT_INIT:
-                    return "CLIENT_INIT";
-            case CLIENT_QUIT:
-                    return "CLIENT_QUIT";
-            case CLIENT_KILLED:
-                    return "CLIENT_KILLED";
+            case FIRE:
+                    return "FIRE";
+            case FORWARD:
+                    return "FORWARD";
+            case BACKWARD:
+                    return "BACKWARD";
+            case RIGHT:
+                    return "RIGHT";
+            case LEFT:
+                    return "LEFT";
+            case INIT:
+                    return "INIT";
+            case QUIT:
+                    return "QUIT";
+            case KILLED:
+                    return "KILLED";
 
         }
         //impossible
