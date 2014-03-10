@@ -18,9 +18,11 @@ public class mazeWarPacket implements Serializable{
 
 
     public int numPlayers = 0;
-    public String[] players = new String[4];
-    public Point[] point = new Point[4];
-    public Direction[] d = new Direction[4];
+    public String player_name;
+    public ArrayList <String> hostname = new ArrayList<String>;
+    public ArrayList <int> port = new ArrayList <int>;
+    public Point point;
+    public Direction d;
 
     public int sequence_number;
     public int type = BOARD_SETUP;
