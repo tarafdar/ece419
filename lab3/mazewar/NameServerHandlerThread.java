@@ -23,7 +23,7 @@ public class NameServerHandlerThread extends Thread {
 			mazeWarPacket packetFromClient;
 			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 			mazeWarPacket packetToClient = new mazeWarPacket();
-			packetFromClient = (mazeWarPacket) fromClient.readObject()
+			packetFromClient = (mazeWarPacket) fromClient.readObject();
             synchronized (server) {
                 server.hostnames.add(packetFromClient.hostname.get(0));     
                 server.ports.add(packetFromClient.port.get(0));

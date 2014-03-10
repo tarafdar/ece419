@@ -156,18 +156,27 @@ public class Mazewar extends JFrame {
                 ScoreTableModel scoreModel = new ScoreTableModel();
                 assert(scoreModel != null);
                 maze.addMazeListener(scoreModel);
-                
+                ArrayList <Socket> socketList = new ArrayList <Socket>();
+                ArrayList <ObjectOutputStream> outStreamList = new ArrayList <ObjectOutputStream>();
+                ArrayList <ObjectInputStream> inStreamList = new ArrayList <ObjectInputStream>();
+                  
                 quit = false;                
-                
+                String localhost = "blah"; 
+                int listenPort = 42;
                 try{
                     String hostname = args[0];
                     int port = Integer.parseInt(args[1]);
-
+                    listenPort = Integer.parseInt(args[2]);
+                
                     clientSocket = new Socket(hostname, port);
                     
 			        out = new ObjectOutputStream(clientSocket.getOutputStream());
 			        in = new ObjectInputStream(clientSocket.getInputStream());
-
+                
+                    java.net.InetAddress addr = java.net.InetAddress.getLocalHost();
+                    localhost = addr.getHostName();
+                    System.out.println("Local hostname is " + localhost);
+                        
 
 
 		        } catch (UnknownHostException e) {
@@ -179,37 +188,59 @@ public class Mazewar extends JFrame {
 		        }
                 
                 try{
+                    
+                    //Packet sending to name server initially
                     mazeWarPacket packetToServer = new mazeWarPacket();
-                    packetToServer.clientName = name;
-                    packetToServer.type = mazeWarPacket.CLIENT_INIT;
+                    packetToServer.type = mazeWarPacket.JOIN;
+                    packetToServer.hostname.add(localhost);   
+                    packetToServer.port.add(listenPort);   
                     out.writeObject(packetToServer);
+                    
                     guiClient = new GUIClient(name, out, this);
                     //maze.addClient(guiClient);
                     this.addKeyListener(guiClient);
                     clientList.add(guiClient);
                     mazeWarPacket packetFromServer = new mazeWarPacket();
                     packetFromServer = (mazeWarPacket) in.readObject();
-                    int i;
-                    RemoteClient remoteclient; 
-                    {
-                            for(i=0; i<packetFromServer.numPlayers; i++){
-    //                             System.out.println("Player " + i + " is " + packetFromServer.players[i] + " and is looking "  + packetFromServer.d[i].toString() + " at point " + packetFromServer.point[i].getX() + "," + packetFromServer.point[i].getY());
-                                  
-                                 if(!name.equals(packetFromServer.players[i])){
-                                    remoteclient = new RemoteClient(packetFromServer.players[i]);
-                                    maze.addClient(remoteclient , packetFromServer.point[i], packetFromServer.d[i]);
-                                    clientList.add(remoteclient);
-  //                                  System.out.println("point after add " + maze.getClientPoint(remoteclient).getX() + "," + maze.getClientPoint(remoteclient).getY() + " facing " + maze.getClientOrientation(remoteclient).toString());  
-                                 }
-                                 else{
-                                    maze.addClient(guiClient, packetFromServer.point[i], packetFromServer.d[i]);
-//                                    System.out.println("point after add " + maze.getClientPoint(guiClient).getX() + "," + maze.getClientPoint(guiClient).getY() + " facing " + maze.getClientOrientation(guiClient).toString());  
-                                }
-                            }
+
+                    int i,j;
+                    j=0;
+                    
+                    for(i=0; i<packetFromServer.numPlayers; i++){
+                      
+                        if(!packetFromServer.hostname.get(i).equals(localhost)){
+                            
+                            j++;      
+                            socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
+			                outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
+			                inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
+                        
+                        }
+
+
                     }
-                    overheadPanel = new OverheadMazePanel(maze, guiClient);
-                    assert(overheadPanel != null);
-                    maze.addMazeListener(overheadPanel);
+
+                   // int i;
+                   // RemoteClient remoteclient; 
+                   // {
+                   //         for(i=0; i<packetFromServer.numPlayers; i++){
+    //             //                System.out.println("Player " + i + " is " + packetFromServer.players[i] + " and is looking "  + packetFromServer.d[i].toString() + " at point " + packetFromServer.point[i].getX() + "," + packetFromServer.point[i].getY());
+                   //               
+                   //              if(!name.equals(packetFromServer.players[i])){
+                   //                 remoteclient = new RemoteClient(packetFromServer.players[i]);
+                   //                 maze.addClient(remoteclient , packetFromServer.point[i], packetFromServer.d[i]);
+                   //                 clientList.add(remoteclient);
+  //               //                   System.out.println("point after add " + maze.getClientPoint(remoteclient).getX() + "," + maze.getClientPoint(remoteclient).getY() + " facing " + maze.getClientOrientation(remoteclient).toString());  
+                   //              }
+                   //              else{
+                   //                 maze.addClient(guiClient, packetFromServer.point[i], packetFromServer.d[i]);
+//                 //                   System.out.println("point after add " + maze.getClientPoint(guiClient).getX() + "," + maze.getClientPoint(guiClient).getY() + " facing " + maze.getClientOrientation(guiClient).toString());  
+                   //             }
+                   //         }
+                   // }
+                   // overheadPanel = new OverheadMazePanel(maze, guiClient);
+                   // assert(overheadPanel != null);
+                   // maze.addMazeListener(overheadPanel);
 
                 }
                 catch (IOException e){
@@ -229,7 +260,7 @@ public class Mazewar extends JFrame {
                 // Create the GUIClient and connect it to the KeyListener queue
                
                 new ServerListenerThread(this, in).start(); 
-                new ServerProcessThread(this).start(); 
+                //new ServerProcessThread(this).start(); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                

@@ -52,7 +52,7 @@ public abstract class LocalClient extends Client {
         public void enqueueQuit(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_QUIT;
+                packetToServer.type = mazeWarPacket.QUIT;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
                 mazewar.quit = true;
@@ -66,7 +66,7 @@ public abstract class LocalClient extends Client {
         public void enqueueForward(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_FORWARD;
+                packetToServer.type = mazeWarPacket.FORWARD;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
@@ -79,7 +79,7 @@ public abstract class LocalClient extends Client {
         public void enqueueBackward(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_BACKWARD;
+                packetToServer.type = mazeWarPacket.BACKWARD;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
@@ -92,7 +92,7 @@ public abstract class LocalClient extends Client {
         public void enqueueRight(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_RIGHT;
+                packetToServer.type = mazeWarPacket.RIGHT;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
@@ -105,7 +105,7 @@ public abstract class LocalClient extends Client {
         public void enqueueLeft(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_LEFT;
+                packetToServer.type = mazeWarPacket.LEFT;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
@@ -118,7 +118,7 @@ public abstract class LocalClient extends Client {
         public void enqueueFire(){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_FIRE;
+                packetToServer.type = mazeWarPacket.FIRE;
                 packetToServer.clientName = this.getName();
                 out.writeObject(packetToServer);
            }
@@ -132,11 +132,11 @@ public abstract class LocalClient extends Client {
        public void enqueueKilled(String target, Point point, Direction d){
 		   try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
-                packetToServer.type = mazeWarPacket.CLIENT_KILLED;
+                packetToServer.type = mazeWarPacket.KILLED;
                 packetToServer.clientName = this.getName();
-                packetToServer.players[0] = target;
-                packetToServer.point[0] = point;
-                packetToServer.d[0] = d;
+                //packetToServer.players[0] = target;
+                //packetToServer.point[0] = point;
+                //packetToServer.d[0] = d;
                 out.writeObject(packetToServer);
            }
            catch(IOException e){

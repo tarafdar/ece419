@@ -10,7 +10,7 @@ public class NameServer {
     public AtomicInteger numPlayers;
     public ArrayList<String> players;
     public ArrayList<String> hostnames;
-    public Arraylist<Integer> ports;
+    public ArrayList<Integer> ports;
     
     public NameServer(String[] args) {
         hostnames = new ArrayList<String>();
@@ -34,7 +34,7 @@ public class NameServer {
         try{
             while (listening) {
                 socket = serverSocket.accept();
-                numConnected.getAndIncrement();
+                numPlayers.getAndIncrement();
         	    new NameServerHandlerThread(this, socket).start();
             }   
 

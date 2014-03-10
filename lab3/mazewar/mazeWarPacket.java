@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 public class mazeWarPacket implements Serializable{
@@ -19,21 +20,18 @@ public class mazeWarPacket implements Serializable{
 
     public int numPlayers = 0;
     public String player_name;
-    public ArrayList <String> hostname = new ArrayList<String>;
-    public ArrayList <int> port = new ArrayList <int>;
+    public ArrayList <String> hostname = new ArrayList<String> ();
+    public ArrayList <Integer> port = new ArrayList <Integer> ();
     public Point point;
     public Direction d;
 
     public int sequence_number;
-    public int type = BOARD_SETUP;
-    
-    public String[] hostname;
-    public int[] port;
+    public int type;    
     
     public String typeToString() {
         switch(this.type) {
             case JOIN:
-                    return "BOARD_SETUP";
+                    return "JOIN";
             case FIRE:
                     return "FIRE";
             case FORWARD:
