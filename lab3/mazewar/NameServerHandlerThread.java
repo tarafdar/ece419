@@ -16,7 +16,7 @@ public class NameServerHandlerThread extends Thread {
 	public void run() {
 
 		boolean done = false;
-		
+		int i;
 		try {
 			/* stream to read from client */
 		    ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
@@ -24,9 +24,14 @@ public class NameServerHandlerThread extends Thread {
 			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 			mazeWarPacket packetToClient = new mazeWarPacket();
 			packetFromClient = (mazeWarPacket) fromClient.readObject();
+            
             synchronized (server) {
                 server.hostnames.add(packetFromClient.hostname.get(0));     
                 server.ports.add(packetFromClient.port.get(0));
+                System.out.println("Recieved connection from "+ packetFromClient.hostname.get(0) + " who is listening on port " + packetFromClient.port.get(0));
+                System.out.println("Returning connections with numplayers = " + server.numPlayers.get());
+                for (i=0; i<server.numPlayers.get(); i++)
+                    System.out.println("Player "+ i + " " + server.hostnames.get(i) + " " +server.ports.get(i));
                 packetToClient.hostname = server.hostnames;
                 packetToClient.port = server.ports;
                 packetToClient.numPlayers = server.numPlayers.get();
