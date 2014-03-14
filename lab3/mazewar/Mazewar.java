@@ -47,7 +47,12 @@ public class Mazewar extends JFrame {
         public ServerListenerThread serverListener = null;
         public int local_sequence_number = 1;
         ArrayList<Client> clientList = new ArrayList<Client>(); 
-        
+        public ArrayList <Socket> socketList = new ArrayList <Socket>();
+        public ArrayList <ObjectOutputStream> outStreamList = new ArrayList <ObjectOutputStream>();
+        public ArrayList <ObjectInputStream> inStreamList = new ArrayList <ObjectInputStream>();
+        public boolean listening;
+        public String name;
+        public ServerSocket serverSocket;
         /**
          * The default width of the {@link Maze}.
          */
@@ -144,7 +149,7 @@ public class Mazewar extends JFrame {
                 consolePrintLn("ECE419 Mazewar started!");
                 // Create the maze
                 // Throw up a dialog to get the GUIClient name.
-                String name = JOptionPane.showInputDialog("Enter your name");
+                name = JOptionPane.showInputDialog("Enter your name");
                 if((name == null) || (name.length() == 0)) {
                   Mazewar.quit();
                 }
@@ -156,18 +161,23 @@ public class Mazewar extends JFrame {
                 ScoreTableModel scoreModel = new ScoreTableModel();
                 assert(scoreModel != null);
                 maze.addMazeListener(scoreModel);
-                ArrayList <Socket> socketList = new ArrayList <Socket>();
-                ArrayList <ObjectOutputStream> outStreamList = new ArrayList <ObjectOutputStream>();
-                ArrayList <ObjectInputStream> inStreamList = new ArrayList <ObjectInputStream>();
-                  
+                 
+                 
+                serverSocket = null;   
                 quit = false;                
                 String localhost = "blah"; 
                 int listenPort = 42;
+                listening =  true;
+                
+                mazeWarPacket testPacket = new mazeWarPacket();
+                testPacket.clientName = name;
+
                 try{
                     String hostname = args[0];
                     int port = Integer.parseInt(args[1]);
                     listenPort = Integer.parseInt(args[2]);
                 
+        		    serverSocket = new ServerSocket(listenPort);
                     clientSocket = new Socket(hostname, port);
                     
 			        out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -203,23 +213,52 @@ public class Mazewar extends JFrame {
                     mazeWarPacket packetFromServer = new mazeWarPacket();
                     packetFromServer = (mazeWarPacket) in.readObject();
 
-                    int i,j;
-                    j=0;
+                    int i;
+                   
                     
-                    for(i=0; i<packetFromServer.numPlayers - 1; i++){
-                      
-                        if(!packetFromServer.hostname.get(i).equals(localhost)){
-                            
-                            j++;      
-                            socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
-			                outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
-			                inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
+                    mazeWarPacket myPacket = new mazeWarPacket();
+                    myPacket.clientName = name;
+                    
+                    synchronized(q){
+                        q.add(myPacket);    
+                    } 
+                    
+                    int player_id = -1;
+                    //for(i=0; i<packetFromServer.numPlayers; i++){
+                    for(i=packetFromServer.numPlayers-1; i>=0; i--){
+                        System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
+                         if(!(packetFromServer.hostname.get(i).equals(localhost) && packetFromServer.port.get(i) == listenPort)){
+                            //new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i), ).start();
+                              System.out.println("making connection"); 
+                            new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i));
+                    //        socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
+			        //        outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
+			        //        inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
+                    //        
+                    //        outStreamList.get(j).writeObject(testPacket);
+                    //        System.out.println("sending(client) " + name);
+                    //        testPacket =(mazeWarPacket) inStreamList.get(j).readObject();
+                    //        System.out.println("receiving(client) " + testPacket.clientName);
+                    //        j++;      
                         
                         }
+                        else
+                            player_id = i;
 
 
                     }
 
+                    System.out.println("Player ID is " + player_id);
+
+                   
+                   new ClientListenerHandler(this).start(); 
+                   System.out.println("after listening");
+
+                   for(i=0; i<q.size(); i++)
+                       System.out.println("Client " + i + " name is " + q.get(i).clientName);
+                  
+                   while(listening); 
+                   serverSocket.close();
                    // int i;
                    // RemoteClient remoteclient; 
                    // {
@@ -265,10 +304,12 @@ public class Mazewar extends JFrame {
                 // constructor.
                
                 
-                
+                                
                 // Create the panel that will display the maze.
                 
                 // Don't allow editing the console from the GUI
+
+                /*
                 console.setEditable(false);
                 console.setFocusable(false);
                 console.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder()));
@@ -320,6 +361,8 @@ public class Mazewar extends JFrame {
                 setVisible(true);
                 overheadPanel.repaint();
                 this.requestFocusInWindow();
+
+                */
         }
 
         

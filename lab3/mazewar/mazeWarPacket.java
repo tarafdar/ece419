@@ -16,9 +16,11 @@ public class mazeWarPacket implements Serializable{
     public static final int QUIT = 70;
     public static final int KILLED = 80;
     public static final int BULLET_TICK = 90;
+    public static final int BYE = 100;
 
 
     public int numPlayers = 0;
+    public int acks = 0;
     public String player_name;
     public ArrayList <String> hostname = new ArrayList<String> ();
     public ArrayList <Integer> port = new ArrayList <Integer> ();
