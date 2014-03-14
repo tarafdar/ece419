@@ -207,7 +207,7 @@ public class Mazewar extends JFrame {
                     out.writeObject(packetToServer);
                     
                     guiClient = new GUIClient(name, out, this);
-                    //maze.addClient(guiClient);
+                    maze.addClient(guiClient);
                     this.addKeyListener(guiClient);
                     clientList.add(guiClient);
                     mazeWarPacket packetFromServer = new mazeWarPacket();
@@ -223,14 +223,14 @@ public class Mazewar extends JFrame {
                         q.add(myPacket);    
                     } 
                     
-                    int player_id = -1;
-                    //for(i=0; i<packetFromServer.numPlayers; i++){
-                    for(i=packetFromServer.numPlayers-1; i>=0; i--){
+              int player_id = -1;
+                    for(i=0; i<packetFromServer.numPlayers; i++){
+                    //for(i=packetFromServer.numPlayers-1; i>=0; i--){
                         System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
                          if(!(packetFromServer.hostname.get(i).equals(localhost) && packetFromServer.port.get(i) == listenPort)){
                             //new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i), ).start();
                               System.out.println("making connection"); 
-                            new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i));
+                            new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i)).start();
                     //        socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
 			        //        outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
 			        //        inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
@@ -254,11 +254,16 @@ public class Mazewar extends JFrame {
                    new ClientListenerHandler(this).start(); 
                    System.out.println("after listening");
 
+                 
+                   while(listening){
+                       synchronized(q) {
+                            if(q.size() == 2){
+                                listening = false;
+                            }
+                       }
+                   }           
                    for(i=0; i<q.size(); i++)
                        System.out.println("Client " + i + " name is " + q.get(i).clientName);
-                  
-                   while(listening); 
-                   serverSocket.close();
                    // int i;
                    // RemoteClient remoteclient; 
                    // {
@@ -298,8 +303,12 @@ public class Mazewar extends JFrame {
                 
                 // Create the GUIClient and connect it to the KeyListener queue
                
-                new ServerListenerThread(this, in).start(); 
-                //new ServerProcessThread(this).start(); 
+                overheadPanel = new OverheadMazePanel(maze, guiClient);
+                assert(overheadPanel != null);
+                maze.addMazeListener(overheadPanel);
+                
+                //new ServerListenerThread(this, in).start(); 
+               // new ServerProcessThread(this).start(); 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                
@@ -309,7 +318,7 @@ public class Mazewar extends JFrame {
                 
                 // Don't allow editing the console from the GUI
 
-                /*
+                
                 console.setEditable(false);
                 console.setFocusable(false);
                 console.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder()));
@@ -361,8 +370,16 @@ public class Mazewar extends JFrame {
                 setVisible(true);
                 overheadPanel.repaint();
                 this.requestFocusInWindow();
-
-                */
+                while(true);
+                //try{
+                //    serverSocket.close();
+                //}
+                //catch(IOException e){
+                //    System.err.println("socket ioexception");
+                //    System.exit(1);                       
+                //    
+                //}    
+                
         }
 
         
