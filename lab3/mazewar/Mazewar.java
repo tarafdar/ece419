@@ -215,9 +215,7 @@ public class Mazewar extends JFrame {
                     out.writeObject(packetToServer);
                     
                     guiClient = new GUIClient(name, out, this);
-                    maze.addClient(guiClient);
                     this.addKeyListener(guiClient);
-                    clientList.add(guiClient);
                     mazeWarPacket packetFromServer = new mazeWarPacket();
                     packetFromServer = (mazeWarPacket) in.readObject();
 
@@ -226,10 +224,7 @@ public class Mazewar extends JFrame {
                     
                     mazeWarPacket myPacket = new mazeWarPacket();
                     myPacket.clientName = name;
-                    synchronized(clientInfo){
-                        clientInfo.add(name);
-                        //q.add(myPacket);    
-                    } 
+                    maze.addClient(guiClient);
                     
               int player_id = -1;
                     for(i=0; i<packetFromServer.numPlayers; i++){
@@ -249,9 +244,11 @@ public class Mazewar extends JFrame {
                     //        j++;      
                         
                         }
-                        else
+                        else{
+                            clientInfo.add(name);
+                            clientList.add(guiClient);
                             player_id = i;
-
+                        }
 
                     }
 
@@ -262,8 +259,6 @@ public class Mazewar extends JFrame {
                    System.out.println("after listening");
 
                  
-                    q = new SequenceQueue<mazeWarPacket>(clientInfo);
-                    
 
                    //System.exit(0);
                    // int i;
