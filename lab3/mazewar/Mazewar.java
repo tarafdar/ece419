@@ -61,6 +61,7 @@ public class Mazewar extends JFrame {
         public ArrayList <ObjectInputStream> inStreamList = new ArrayList <ObjectInputStream>();
         public LinkedBlockingQueue<mazeWarPacket> outstandingLocalEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public LinkedBlockingQueue<mazeWarPacket> toProcessEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
+        public LinkedBlockingQueue<DirectedPoint> otherClientLocations = new LinkedBlockingQueue<DirectedPoint>();
         public String name;
         public int player_id = -1;
         public ServerSocket serverSocket;
@@ -91,7 +92,7 @@ public class Mazewar extends JFrame {
         /**
          * The {@link GUIClient} for the game.
          */
-        private GUIClient guiClient = null;
+        public GUIClient guiClient = null;
 
         /**
          * The panel that displays the {@link Maze}.
@@ -213,7 +214,7 @@ public class Mazewar extends JFrame {
                     
                     //Packet sending to name server initially
                     mazeWarPacket packetToServer = new mazeWarPacket();
-                    packetToServer.type = mazeWarPacket.JOIN;
+                    packetToServer.type = mazeWarPacket.JOIN_REQ;
                     packetToServer.hostname.add(localhost);   
                     packetToServer.port.add(listenPort);   
                     out.writeObject(packetToServer);
@@ -267,9 +268,11 @@ public class Mazewar extends JFrame {
 
                     }
 
-                    System.out.println("Player ID is " + player_id);
-
-                   
+                   System.out.println("Player ID is " + player_id);
+                   if(player_id == 0) {
+                       hasToken = true;
+                       System.out.println("spawned token");
+                   }
                    new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
 

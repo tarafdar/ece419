@@ -19,7 +19,7 @@ public class MulticastThread extends Thread {
                 numExpectedAcks = 0;
                 if(mazewar.hasToken) {
                     synchronized (mazewar.outstandingLocalEventsQ) {    
-                        while(mazewar.outstandingLocalEventsQ.peek() != null) {
+                        if(mazewar.outstandingLocalEventsQ.peek() != null) {
                             packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
                                     
                             System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
@@ -33,7 +33,7 @@ public class MulticastThread extends Thread {
                             synchronized(mazewar.toProcessEventsQ) {
                                 mazewar.toProcessEventsQ.offer(packetFromQueue);
                             }
-                        }
+                       }
                     }
                     while (mazewar.currentAcks.get() != numExpectedAcks);
                     tokenPacket = new mazeWarPacket();
@@ -41,7 +41,8 @@ public class MulticastThread extends Thread {
                     //clear the acks
                     mazewar.currentAcks.set(0);
                     //send the token
-                    mazewar.outStreamList.get(mazewar.nextInRingIdx).writeObject(tokenPacket); 
+                    mazewar.outStreamList.get(mazewar.nextInRingIdx).writeObject(tokenPacket);
+                    mazewar.hasToken = false; 
                 }
             }
         } catch (IOException e) {

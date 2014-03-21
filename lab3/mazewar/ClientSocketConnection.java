@@ -15,10 +15,6 @@ public class ClientSocketConnection extends Thread {
         playerName = mazewar.name;
     }	
     
-    
-    
-    
-    
     public void run() {
 
 		Socket socket = null;
@@ -44,19 +40,21 @@ public class ClientSocketConnection extends Thread {
 
 			mazeWarPacket packetToServer = new mazeWarPacket();
 			packetToServer.clientName = playerName;
-			out.writeObject(packetToServer);
 			mazeWarPacket packetFromServer;
 			packetFromServer = (mazeWarPacket) in.readObject();
+            
             synchronized(mazewar.clientList){
+            
+                packetToServer.clientID = mazewar.player_id;
+			    out.writeObject(packetToServer);
                 mazewar.clientInfo.add(packetFromServer.clientName);
                 mazewar.clientList.add(new RemoteClient(packetFromServer.clientName));
 
-                playerID = mazewar.clientList.size() - 1;
                 System.out.println("we currently have " + mazewar.clientInfo.size() + " clients in the game and just added " + packetFromServer.clientName);
-                //new EventSender(mazewar, out, in, playerID).start();
             }
+            playerID = packetFromServer.clientID;
 			/* print server reply */
-            new EventListener(mazewar, in, out, playerID).start();
+            new EventListener(mazewar, in, out, playerID ).start();
 
 		} catch (UnknownHostException e) {
 			System.err.println("ERROR: Don't know where to connect!!");

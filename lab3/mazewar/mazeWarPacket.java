@@ -6,8 +6,8 @@ public class mazeWarPacket implements Serializable{
     
     public String clientName;
 
-    public static final int JOIN = 0;
-    public static final int FIRE = 10;
+    public static final int JOIN_REQ = 0;
+    public static final int JOIN_AT = 10;
     public static final int FORWARD = 20;
     public static final int BACKWARD = 30;
     public static final int RIGHT = 40;
@@ -16,10 +16,11 @@ public class mazeWarPacket implements Serializable{
     public static final int QUIT = 70;
     public static final int KILLED = 80;
     public static final int BULLET_TICK = 90;
-    public static final int ACK = 100;
+    public static final int FIRE = 100;
     public static final int TOKEN = 110;
     public static final int BYE = 120;
 
+    public boolean isAck = false;
     public int clientID;
     public int killedClientID;
 
@@ -36,7 +37,7 @@ public class mazeWarPacket implements Serializable{
     
     public String typeToString() {
         switch(this.type) {
-            case JOIN:
+            case JOIN_REQ:
                     return "JOIN";
             case FIRE:
                     return "FIRE";

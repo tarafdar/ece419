@@ -6,7 +6,7 @@ public class ServerSocketConnection extends Thread {
 	private ServerSocket serversocket = null;
     private String playerName;
     private Mazewar mazewar;
-    private int playerID;	
+    private int playerID;
     
     public ServerSocketConnection(ServerSocket serversocket, Mazewar mazewar) {
 		super("Client Listener Thread");
@@ -51,10 +51,14 @@ public class ServerSocketConnection extends Thread {
                 synchronized(mazewar.clientList) {
                    mazewar.clientInfo.add(packetFromClient.clientName);
                    mazewar.clientList.add(new RemoteClient(packetFromClient.clientName));
-                   playerID = mazewar.clientInfo.size() - 1;
                    System.out.println("we currently have " + mazewar.clientInfo.size() + " clients in the game and just added " + packetFromClient.clientName);
                 }
+                playerID = packetFromClient.clientID;
+                if (packetFromClient.clientID - mazewar.player_id == 1) {
+                    mazewar.nextInRingIdx = playerID; 
+                }    
                 packetToClient.clientName = playerName;
+                packetToClient.clientID = mazewar.player_id;
                 toClient.writeObject(packetToClient);
                 new EventListener(mazewar, fromClient, toClient, playerID).start();
             }

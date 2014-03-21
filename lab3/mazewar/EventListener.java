@@ -26,18 +26,36 @@ public class EventListener extends Thread {
             try{
                 packetIn = (mazeWarPacket)in.readObject();
                 System.out.println("have read packet"); 
-                if(!(packetIn.type == mazeWarPacket.ACK && packetIn.type == mazeWarPacket.TOKEN)){
+                if(!(packetIn.type == mazeWarPacket.TOKEN || packetIn.type == mazeWarPacket.JOIN_REQ)){
                     packetOut = packetIn;
                     synchronized(mazewar.toProcessEventsQ){
                         mazewar.toProcessEventsQ.offer(packetIn);
-                        packetOut.type = mazeWarPacket.ACK;
+                        packetOut.isAck = true;
                         out.writeObject(packetOut);
                     }
                 }
                 else if(packetIn.type == mazeWarPacket.TOKEN){
                     mazewar.hasToken = true;
                 }
-                else if(packetIn.type == mazeWarPacket.ACK){
+                else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == false){
+                   packetOut = new mazeWarPacket();
+                   packetOut.point = mazewar.guiClient.getPoint();  
+                   packetOut.d = mazewar.guiClient.getOrientation();  
+                   packetOut.isAck = true;
+                   out.writeObject(packetOut);
+                    
+                } 
+                
+                //should have token (when we receive ack guaranteed to have token)
+                else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == true){
+                    DirectedPoint dp = new DirectedPoint(packetIn.point, packetIn.d);
+                    synchronized(mazewar.otherClientLocations){
+                        mazewar.otherClientLocations.offer(dp);
+                    }
+                } 
+                
+                //should have token (when we receive ack guaranteed to have token)
+                else if(packetIn.isAck == true ){
                     mazewar.currentAcks.getAndIncrement();
                 }    
 

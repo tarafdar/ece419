@@ -16,8 +16,8 @@ public class EventProcessThread extends Thread{
 
         while(!mazewar.quit){
             synchronized(mazewar.toProcessEventsQ){
-                 while(mazewar.toProcessEventsQ.size()>0){
-                     packet = toProcessEventsQ.take();
+                 if(mazewar.toProcessEventsQ.size()>0){
+                     packet = toProcessEventsQ.poll();
                      if(packet.type == mazeWarPacket.CLIENT_FORWARD)
                          mazewar.clientList.get(packet.clientID).forward();
 
@@ -42,7 +42,7 @@ public class EventProcessThread extends Thread{
 
                      }
                               
-                  }
+                 }
             }
 
 
