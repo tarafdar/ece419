@@ -46,16 +46,18 @@ public class Mazewar extends JFrame {
         public boolean quit = false;
         
 //        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
-        public SequenceQueue<mazeWarPacket> q;
+        //public SequenceQueue<mazeWarPacket> q;
         
         
         public ArrayList<String> clientInfo = new ArrayList<String>();
-        public int local_sequence_number = 1;
+//        public int local_sequence_number = 1;
+//        public AtomicInteger currentSequenceNumber = new AtomicInteger();
         ArrayList<Client> clientList = new ArrayList<Client>(); 
         public ArrayList <Socket> socketList = new ArrayList <Socket>();
         public ArrayList <ObjectOutputStream> outStreamList = new ArrayList <ObjectOutputStream>();
         public ArrayList <ObjectInputStream> inStreamList = new ArrayList <ObjectInputStream>();
-        public boolean listening;
+        public LinkedBlockingQueue<mazeWarPacket> outstandingLocalEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
+        public LinkedBlockingQueue<mazeWarPacket> toProcessEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public String name;
         public ServerSocket serverSocket;
         public mazeWarPacket enqueuePacket;
@@ -174,7 +176,6 @@ public class Mazewar extends JFrame {
                 quit = false;                
                 String localhost = "blah"; 
                 int listenPort = 42;
-                listening =  true;
                 
                 mazeWarPacket testPacket = new mazeWarPacket();
                 testPacket.clientName = name;
