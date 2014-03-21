@@ -273,7 +273,7 @@ public class Mazewar extends JFrame {
                    new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
 
-                 
+                   new MulticastThread(this).start(); 
 
                    //System.exit(0);
                    // int i;

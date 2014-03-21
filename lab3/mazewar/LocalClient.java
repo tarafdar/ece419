@@ -104,7 +104,7 @@ public abstract class LocalClient extends Client {
                 packetToServer.clientName = this.getName();
                 packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
-                    mazewar.outstandingLocalEventsQ.offer(acketToServer);
+                    mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
                 //out.writeObject(packetToServer);
            //}

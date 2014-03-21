@@ -18,18 +18,18 @@ public class MulticastThread extends Thread {
             while (true) {
                 numExpectedAcks = 0;
                 if(mazewar.hasToken) {
-                    synchronized (mazewar.outstandingLocalEvents) {    
-                        while(outstandingLocalEvents.peek()) {
-                            packetFromQueue = outstandingLocalEvents.poll();
+                    synchronized (mazewar.outstandingLocalEventsQ) {    
+                        while(mazewar.outstandingLocalEventsQ.peek() != null) {
+                            packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
                                     
                             System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
                             
-                            for(i=0; i<mazewar.outputStreams.size(); i++) {
-                                if (!mazewar.sockets.get(i).isClosed() && mazewar.outputStreams.get(i)) {
-                                    mazewar.outputStreams.get(i).writeObject(packetFromQueue);
+                            for(i=0; i<mazewar.outStreamList.size(); i++) {
+                                if (!mazewar.socketList.get(i).isClosed() && mazewar.outStreamList.get(i) != null) {
+                                    mazewar.outStreamList.get(i).writeObject(packetFromQueue);
                                 }
                             }
-                            numExpectedAcks += mazewar.outputStreams.size() - 1;
+                            numExpectedAcks += mazewar.outStreamList.size() - 1;
                             synchronized(mazewar.toProcessEventsQ) {
                                 mazewar.toProcessEventsQ.offer(packetFromQueue);
                             }
@@ -39,13 +39,13 @@ public class MulticastThread extends Thread {
                     tokenPacket = new mazeWarPacket();
                     tokenPacket.type = mazeWarPacket.TOKEN;
                     //clear the acks
-                    mazewar.currentAcks.clear();
+                    mazewar.currentAcks.set(0);
                     //send the token
-                    mazewar.outputStream.get(mazewar.nextInRingIdx).writeObject(tokenPacket); 
+                    mazewar.outStreamList.get(mazewar.nextInRingIdx).writeObject(tokenPacket); 
                 }
             }
         } catch (IOException e) {
-            System.err.println("IOE exception in Multicast Thread")
+            System.err.println("IOE exception in Multicast Thread");
             e.printStackTrace();     
         } 
     }

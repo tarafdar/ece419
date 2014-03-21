@@ -17,7 +17,7 @@ public class mazeWarPacket implements Serializable{
     public static final int KILLED = 80;
     public static final int BULLET_TICK = 90;
     public static final int ACK = 100;
-    public static final int ACK = 110;
+    public static final int TOKEN = 110;
     public static final int BYE = 120;
 
     public int clientID;
