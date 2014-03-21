@@ -32,6 +32,9 @@ import java.net.*;
 import java.io.IOException; 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * The entry point and glue code for the game.  It also contains some helpful
  * global utility methods.
@@ -59,6 +62,7 @@ public class Mazewar extends JFrame {
         public LinkedBlockingQueue<mazeWarPacket> outstandingLocalEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public LinkedBlockingQueue<mazeWarPacket> toProcessEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public String name;
+        public int player_id = -1;
         public ServerSocket serverSocket;
         public mazeWarPacket enqueuePacket;
         public BitSet sendersBV = null;
@@ -226,7 +230,6 @@ public class Mazewar extends JFrame {
                     myPacket.clientName = name;
                     maze.addClient(guiClient);
                     
-              int player_id = -1;
                     for(i=0; i<packetFromServer.numPlayers; i++){
                     //for(i=packetFromServer.numPlayers-1; i>=0; i--){
                         System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
@@ -245,9 +248,20 @@ public class Mazewar extends JFrame {
                         
                         }
                         else{
-                            clientInfo.add(name);
-                            clientList.add(guiClient);
-
+                            synchronized (clientList) {
+                                clientInfo.add(name);
+                                clientList.add(guiClient);
+                            }
+                            synchronized (socketList) {
+                                socketList.add(null);
+                            }
+                            synchronized (outStreamList) {
+                                outStreamList.add(null);
+                            }
+                            synchronized (inStreamList) {
+                                inStreamList.add(null);
+                            }
+                            
                             player_id = i;
                         }
 
