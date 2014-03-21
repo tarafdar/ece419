@@ -55,6 +55,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.QUIT;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
@@ -66,6 +67,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.FORWARD;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
@@ -83,6 +85,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.BACKWARD;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
@@ -99,6 +102,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.RIGHT;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(acketToServer);
                 }
@@ -115,6 +119,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.LEFT;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.(packetToServer);
                 }
@@ -131,6 +136,7 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.FIRE;
                 packetToServer.clientName = this.getName();
+                packetToServer.clientID = mazewar.player_id;
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
@@ -143,7 +149,7 @@ public abstract class LocalClient extends Client {
        }
         
         
-       public void enqueueKilled(String target, Point point, Direction d){
+       public void enqueueKilled(Client target, Point point, Direction d){
 		   //try{
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.KILLED;
@@ -151,9 +157,12 @@ public abstract class LocalClient extends Client {
                 //packetToServer.players[0] = target;
                 //packetToServer.point[0] = point;
                 //packetToServer.d[0] = d;
+                packetToServer.clientID = mazewar.player_id;
+                packetToServer.killedClientID = mazewar.clientList.indexOf(target);
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
+                
                 //out.writeObject(packetToServer);
            //}
            //catch(IOException e){

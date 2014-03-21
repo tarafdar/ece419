@@ -34,12 +34,12 @@ public class EventListener extends Thread {
                         out.writeObject(packetOut);
                     }
                 }
-                else if(packetIn.type == mazePacket.TOKEN){
+                else if(packetIn.type == mazeWarPacket.TOKEN){
                     mazewar.hasToken = true;
-
-
                 }
-                
+                else if(packetIn.type == mazeWarPacket.ACK){
+                    mazewar.currentAcks.getAndIncrement();
+                }    
 
             }
             catch(IOException e){

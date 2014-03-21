@@ -20,6 +20,8 @@ public class mazeWarPacket implements Serializable{
     public static final int ACK = 110;
     public static final int BYE = 120;
 
+    public int clientID;
+    public int killedClientID;
 
     public int numPlayers = 0;
     public int acks = 0;

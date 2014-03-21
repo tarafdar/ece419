@@ -512,7 +512,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         d = Direction.random();
                 }
                 LocalClient source_casted = (LocalClient) source;
-                source_casted.enqueueKilled(target.getName(), point, d);
+                source_casted.enqueueKilled(target, point, d);
         }
       
         public synchronized void  killed(Client source, Client target, Point point, Direction d){
