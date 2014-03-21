@@ -47,11 +47,11 @@ public class Mazewar extends JFrame {
         
 //        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         //public SequenceQueue<mazeWarPacket> q;
-        
+        public int nextInRingIdx = 0;        
         public boolean hasToken = false; 
         public ArrayList<String> clientInfo = new ArrayList<String>();
 //        public int local_sequence_number = 1;
-//        public AtomicInteger currentSequenceNumber = new AtomicInteger();
+        public AtomicInteger currentAcks = new AtomicInteger();
         public ArrayList<Client> clientList = new ArrayList<Client>(); 
         public ArrayList <Socket> socketList = new ArrayList <Socket>();
         public ArrayList <ObjectOutputStream> outStreamList = new ArrayList <ObjectOutputStream>();
