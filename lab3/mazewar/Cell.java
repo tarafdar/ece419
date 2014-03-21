@@ -24,7 +24,7 @@ USA.
  */
 
 public abstract class Cell {
-
+	//hi
     /** 
      * Does this cell have a wall in the specified direction? 
      * @param direction Cardinal direction to check.

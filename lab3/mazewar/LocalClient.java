@@ -29,6 +29,7 @@ USA.
 
 import java.io.ObjectOutputStream;
 import java.io.IOException; 
+import java.util.BitSet;
 
 public abstract class LocalClient extends Client {
         public ObjectOutputStream out;
@@ -50,99 +51,176 @@ public abstract class LocalClient extends Client {
         }
 
         public void enqueueQuit(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.QUIT;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }      
+                    }
+                }
+               // out.writeObject(packetToServer);
                 mazewar.quit = true;
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection. QUIT");
-		       	System.exit(1);
-           }
+          // }
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection. QUIT");
+		   //    	System.exit(1);
+           //}
        }
 
         public void enqueueForward(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.FORWARD;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                     }
+                }
+                //out.writeObject(packetToServer);
+          // }
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
        }
         
         public void enqueueBackward(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.BACKWARD;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                    }
+                }
+                //out.writeObject(packetToServer);
+          // }
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
        }
         
         public void enqueueRight(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.RIGHT;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                    }
+                }
+                //out.writeObject(packetToServer);
+           //}
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
        }
         
         public void enqueueLeft(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.LEFT;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                     }
+                }
+                //out.writeObject(packetToServer);
+           //}
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
        }
         
         public void enqueueFire(){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.FIRE;
                 packetToServer.clientName = this.getName();
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                     }
+                }
+                //out.writeObject(packetToServer);
+          // }
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
        }
         
         
        public void enqueueKilled(String target, Point point, Direction d){
-		   try{
+		   //try{
+                BitSet sendersBV = mazewar.sendersBV;
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.KILLED;
                 packetToServer.clientName = this.getName();
                 //packetToServer.players[0] = target;
                 //packetToServer.point[0] = point;
                 //packetToServer.d[0] = d;
-                out.writeObject(packetToServer);
-           }
-           catch(IOException e){
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		       	System.exit(1);
-           }
+                synchronized(mazewar.sendersBV){
+                    if(sendersBV == null || sendersBV.isEmpty()){
+                        sendersBV = new BitSet(mazewar.clientInfo.size());
+                        sendersBV.set(0, mazewar.clientInfo.size() -1);
+                        mazewar.sendersBV = sendersBV;
+                        synchronized(mazewar.enqueuePacket){
+                            mazewar.enqueuePacket = packetToServer;
+                        }
+                    }
+                }
+                //out.writeObject(packetToServer);
+           //}
+           //catch(IOException e){
+		   //     System.err.println("ERROR: Couldn't get I/O for the connection.");
+		   //    	System.exit(1);
+           //}
            
        }       
        

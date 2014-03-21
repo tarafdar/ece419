@@ -31,6 +31,7 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.io.IOException; 
 import java.util.ArrayList;
+import java.util.BitSet;
 /**
  * The entry point and glue code for the game.  It also contains some helpful
  * global utility methods.
@@ -43,8 +44,12 @@ public class Mazewar extends JFrame {
 		public static ObjectOutputStream out = null;
 		public static ObjectInputStream in = null;
         public boolean quit = false;
-        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
-        public ServerListenerThread serverListener = null;
+        
+//        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
+        public SequenceQueue<mazeWarPacket> q;
+        
+        
+        public ArrayList<String> clientInfo = new ArrayList<String>();
         public int local_sequence_number = 1;
         ArrayList<Client> clientList = new ArrayList<Client>(); 
         public ArrayList <Socket> socketList = new ArrayList <Socket>();
@@ -53,6 +58,8 @@ public class Mazewar extends JFrame {
         public boolean listening;
         public String name;
         public ServerSocket serverSocket;
+        public mazeWarPacket enqueuePacket;
+        public BitSet sendersBV = null;
         /**
          * The default width of the {@link Maze}.
          */
@@ -218,9 +225,9 @@ public class Mazewar extends JFrame {
                     
                     mazeWarPacket myPacket = new mazeWarPacket();
                     myPacket.clientName = name;
-                    
-                    synchronized(q){
-                        q.add(myPacket);    
+                    synchronized(clientInfo){
+                        clientInfo.add(name);
+                        //q.add(myPacket);    
                     } 
                     
               int player_id = -1;
@@ -228,9 +235,8 @@ public class Mazewar extends JFrame {
                     //for(i=packetFromServer.numPlayers-1; i>=0; i--){
                         System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
                          if(!(packetFromServer.hostname.get(i).equals(localhost) && packetFromServer.port.get(i) == listenPort)){
-                            //new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i), ).start();
-                              System.out.println("making connection"); 
-                            new ClientSenderThread(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i)).start();
+                            System.out.println("making connection"); 
+                            new ClientSocketConnection(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i)).start();
                     //        socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
 			        //        outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
 			        //        inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
@@ -251,19 +257,14 @@ public class Mazewar extends JFrame {
                     System.out.println("Player ID is " + player_id);
 
                    
-                   new ClientListenerHandler(this).start(); 
+                   new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
 
                  
-                   while(listening){
-                       synchronized(q) {
-                            if(q.size() == 2){
-                                listening = false;
-                            }
-                       }
-                   }           
-                   for(i=0; i<q.size(); i++)
-                       System.out.println("Client " + i + " name is " + q.get(i).clientName);
+                    q = new SequenceQueue<mazeWarPacket>(clientInfo);
+                    
+
+                   //System.exit(0);
                    // int i;
                    // RemoteClient remoteclient; 
                    // {
