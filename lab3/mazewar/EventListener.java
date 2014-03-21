@@ -26,19 +26,20 @@ public class EventListener extends Thread {
             try{
                 packetIn = (mazeWarPacket)in.readObject();
                 System.out.println("have read packet"); 
-                if(!(packetIn.type == mazeWarPacket.ACK)){
+                if(!(packetIn.type == mazeWarPacket.ACK && packetIn.type == mazeWarPacket.TOKEN)){
                     packetOut = packetIn;
-                    synchronized(mazewar.q){
-                        mazewar.q.addQueue(packetIn);
+                    synchronized(mazewar.toProcessEventsQ){
+                        mazewar.toProcessEventsQ.offer(packetIn);
                         packetOut.type = mazeWarPacket.ACK;
                         out.writeObject(packetOut);
                     }
                 }
-                else{
-                    synchronized(mazewar.q){
-                        mazewar.q.setAck(packetIn);
-                    }
+                else if(packetIn.type == mazePacket.TOKEN){
+                    mazewar.hasToken = true;
+
+
                 }
+                
 
             }
             catch(IOException e){

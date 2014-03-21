@@ -247,6 +247,7 @@ public class Mazewar extends JFrame {
                         else{
                             clientInfo.add(name);
                             clientList.add(guiClient);
+
                             player_id = i;
                         }
 

@@ -37,8 +37,9 @@ public class ServerSocketConnection extends Thread {
 		    	
                 packetFromClient = (mazeWarPacket) fromClient.readObject();
                 System.out.println("receiving(server) " + packetFromClient.clientName);
-                synchronized(mazewar.clientInfo) {
+                synchronized(mazewar.clientList) {
                    mazewar.clientInfo.add(packetFromClient.clientName);
+                   mazewar.clientList.add(new RemoteClient(packetFromClient.clientName));
                    playerID = mazewar.clientInfo.size() - 1;
                    System.out.println("we currently have " + mazewar.clientInfo.size() + " clients in the game and just added " + packetFromClient.clientName);
                 }
