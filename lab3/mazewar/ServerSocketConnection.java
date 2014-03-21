@@ -34,6 +34,17 @@ public class ServerSocketConnection extends Thread {
 			
 			    /* stream to write back to client */
 			    ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
+
+                synchronized(mazewar.socketList) {
+                    mazewar.socketList.add(socket);
+                }
+                synchronized(mazewar.outStreamList) {
+                    mazewar.outStreamList.add(toClient);
+                }
+                synchronized(mazewar.inStreamList) {
+                    mazewar.inStreamList.add(fromClient);
+                }
+
 		    	
                 packetFromClient = (mazeWarPacket) fromClient.readObject();
                 System.out.println("receiving(server) " + packetFromClient.clientName);

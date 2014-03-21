@@ -32,7 +32,15 @@ public class ClientSocketConnection extends Thread {
 
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in = new ObjectInputStream(socket.getInputStream());
-
+            synchronized(mazewar.socketList) {
+                mazewar.socketList.add(socket);
+            }
+            synchronized(mazewar.outStreamList) {
+                mazewar.outStreamList.add(out);
+            }
+            synchronized(mazewar.inStreamList) {
+                mazewar.inStreamList.add(in);
+            }
 
 			mazeWarPacket packetToServer = new mazeWarPacket();
 			packetToServer.clientName = playerName;
