@@ -41,6 +41,11 @@ public class EventProcessThread extends Thread{
                          mazewar.maze.removeClient(mazewar.clientList.get(packet.clientID));
 
                      }
+                     else if(packet.type == mazeWarPacket.JOIN_AT){
+                         mazewar.maze.addClient(mazewar.clientList.get(packet.clientID), packet.point, packet.d);
+
+
+                     }
                               
                  }
             }

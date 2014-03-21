@@ -49,6 +49,7 @@ public class EventListener extends Thread {
                 //should have token (when we receive ack guaranteed to have token)
                 else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == true){
                     DirectedPoint dp = new DirectedPoint(packetIn.point, packetIn.d);
+                    mazewar.currentAcks.getAndIncrement();
                     synchronized(mazewar.otherClientLocations){
                         mazewar.otherClientLocations.offer(dp);
                     }
