@@ -42,6 +42,7 @@ public class EventListener extends Thread {
                    packetOut.point = mazewar.guiClient.getPoint();  
                    packetOut.d = mazewar.guiClient.getOrientation();  
                    packetOut.isAck = true;
+                   packetOut.clientID = mazewar.player_id;
                    out.writeObject(packetOut);
                     
                 } 
@@ -49,11 +50,17 @@ public class EventListener extends Thread {
                 //should have token (when we receive ack guaranteed to have token)
                 else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == true){
                     DirectedPoint dp = new DirectedPoint(packetIn.point, packetIn.d);
+                    mazewar.currentAcks.getAndIncrement();
                     synchronized(mazewar.otherClientLocations){
-                        mazewar.otherClientLocations.offer(dp);
+                        mazewar.otherClientLocations.add(dp);
+                        synchronized(mazewar.otherClientIDs){
+                            mazewar.otherClientIDs.add(packetIn.clientID);
+                        }
                     }
                 } 
-                
+               
+               
+                 
                 //should have token (when we receive ack guaranteed to have token)
                 else if(packetIn.isAck == true ){
                     mazewar.currentAcks.getAndIncrement();
