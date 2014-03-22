@@ -10,7 +10,7 @@ public class MulticastThread extends Thread {
     }
 
     public void run() {
-        mazeWarPacket packetFromQueue;
+        mazeWarPacket packetFromQueue = null;
         mazeWarPacket tokenPacket;
         mazeWarPacket joinAtPacket;
         int i;
@@ -51,7 +51,7 @@ public class MulticastThread extends Thread {
                         Point point = new Point(mazewar.maze.randomGen.nextInt(mazewar.maze.maxX),mazewar.maze.randomGen.nextInt(mazewar.maze.maxY));
                         while(!found) {
                             for(i=0; i<mazewar.otherClientLocations.size();i++) {
-                                if(point.getX() == mazewar.otherClientLocations.get(i).point.getX() && point.getY() == mazewar.otherClientLocations.get(i).point.getY())
+                                if(point.getX() == mazewar.otherClientLocations.get(i).getX() && point.getY() == mazewar.otherClientLocations.get(i).getY())
                                     break;
                             }
                             if(i==mazewar.otherClientLocations.size())
