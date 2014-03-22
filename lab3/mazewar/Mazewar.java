@@ -87,7 +87,7 @@ public class Mazewar extends JFrame {
         /**
          * The {@link Maze} that the game uses.
          */
-        public Maze maze = null;
+        public MazeImpl maze = null;
 
         /**
          * The {@link GUIClient} for the game.
