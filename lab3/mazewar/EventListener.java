@@ -52,9 +52,9 @@ public class EventListener extends Thread {
                     DirectedPoint dp = new DirectedPoint(packetIn.point, packetIn.d);
                     mazewar.currentAcks.getAndIncrement();
                     synchronized(mazewar.otherClientLocations){
-                        mazewar.otherClientLocations.offer(dp);
+                        mazewar.otherClientLocations.add(dp);
                         synchronized(mazewar.otherClientIDs){
-                            mazewar.otherClientIDs.offer(packetIn.clientID);
+                            mazewar.otherClientIDs.add(packetIn.clientID);
                         }
                     }
                 } 
