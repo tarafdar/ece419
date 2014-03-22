@@ -13,7 +13,7 @@ public class EventProcessThread extends Thread{
 
     public void run(){
         mazeWarPacket packet;
-
+        int i;
         while(!mazewar.quit){
             synchronized(mazewar.toProcessEventsQ){
                  if(mazewar.toProcessEventsQ.size()>0){
@@ -46,6 +46,18 @@ public class EventProcessThread extends Thread{
 
 
                      }
+                     else if(packet.type == mazeWarPacket.JOIN_REQ){
+                        for(i=0; i<mazewar.otherClientLocations.size(); i++){
+                            mazewar.maze.addClient(mazewar.clientList.get(mazewar.otherClientIDs.get(i)), mazewar.otherClientLocations.get(i).point, mazewar.otherClientLocations.get(i).getDirection());     
+                            
+                            
+                            
+                        }    
+                             
+                             
+                         
+                         
+                     } 
                               
                  }
             }

@@ -62,6 +62,7 @@ public class Mazewar extends JFrame {
         public LinkedBlockingQueue<mazeWarPacket> outstandingLocalEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public LinkedBlockingQueue<mazeWarPacket> toProcessEventsQ = new LinkedBlockingQueue<mazeWarPacket>();
         public LinkedBlockingQueue<DirectedPoint> otherClientLocations = new LinkedBlockingQueue<DirectedPoint>();
+        public LinkedBlockingQueue<Integer> otherClientIDs = new LinkedBlockingQueue<Integer>();
         public String name;
         public int player_id = -1;
         public ServerSocket serverSocket;
