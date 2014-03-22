@@ -68,6 +68,7 @@ public class Mazewar extends JFrame {
         public ServerSocket serverSocket;
         public mazeWarPacket enqueuePacket;
         public BitSet sendersBV = null;
+        public boolean alreadyJoined = false;
         /**
          * The default width of the {@link Maze}.
          */
@@ -276,9 +277,9 @@ public class Mazewar extends JFrame {
                    }
                    new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
-
+                   new EventProcessThread(this).start();
                    new MulticastThread(this).start(); 
-
+                   while(!alreadyJoined);
                    //System.exit(0);
                    // int i;
                    // RemoteClient remoteclient; 
