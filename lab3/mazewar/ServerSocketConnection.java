@@ -45,22 +45,22 @@ public class ServerSocketConnection extends Thread {
                     mazewar.inStreamList.add(fromClient);
                 }
 
-		    	
-                packetFromClient = (mazeWarPacket) fromClient.readObject();
-                System.out.println("receiving(server) " + packetFromClient.clientName);
+		    
+            //    packetFromClient = (mazeWarPacket) fromClient.readObject();
+            //    System.out.println("receiving(server) " + packetFromClient.clientName);
                 synchronized(mazewar.clientList) {
-                   mazewar.clientInfo.add(packetFromClient.clientName);
-                   mazewar.clientList.add(new RemoteClient(packetFromClient.clientName));
-                   System.out.println("we currently have " + mazewar.clientInfo.size() + " clients in the game and just added " + packetFromClient.clientName);
+            //       mazewar.clientInfo.add(packetFromClient.clientName);
+                   mazewar.clientList.add(null);
+                   System.out.println("just added a client from a remote connection to listening port");
                 }
-                playerID = packetFromClient.clientID;
-                if (packetFromClient.clientID - mazewar.player_id == 1) {
-                    mazewar.nextInRingIdx = playerID; 
+            //    playerID = packetFromClient.clientID;
+                if (mazewar.nextInRingIdx.get() == 0) {
+                    mazewar.nextInRingIdx.set(mazewar.player_id + 1); 
                 }    
-                packetToClient.clientName = playerName;
-                packetToClient.clientID = mazewar.player_id;
-                toClient.writeObject(packetToClient);
-                new EventListener(mazewar, fromClient, toClient, playerID).start();
+                //packetToClient.clientName = playerName;
+                //packetToClient.clientID = mazewar.player_id;
+                //toClient.writeObject(packetToClient);
+                new EventListener(mazewar, fromClient, toClient).start();
             }
             //new EventSender(mazewar, toClient, fromClient, playerID).start();
 			
@@ -73,9 +73,9 @@ public class ServerSocketConnection extends Thread {
 		} catch (IOException e) {
 			if(!gotByePacket)
 				e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			if(!gotByePacket)
-				e.printStackTrace();
+//		} catch (ClassNotFoundException e) {
+//			if(!gotByePacket)
+//				e.printStackTrace();
 		}
 	}
 }

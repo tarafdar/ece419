@@ -50,8 +50,8 @@ public class Mazewar extends JFrame {
         
 //        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         //public SequenceQueue<mazeWarPacket> q;
-        public int nextInRingIdx = 0;        
-        public boolean hasToken = false; 
+        public AtomicInteger nextInRingIdx = new AtomicInteger();        
+        public Boolean hasToken = new Boolean(false); 
         public ArrayList<String> clientInfo = new ArrayList<String>();
 //        public int local_sequence_number = 1;
         public AtomicInteger currentAcks = new AtomicInteger();
@@ -68,16 +68,17 @@ public class Mazewar extends JFrame {
         public ServerSocket serverSocket;
         public mazeWarPacket enqueuePacket;
         public BitSet sendersBV = null;
-        public boolean alreadyJoined = false;
+        public Boolean alreadyJoined =  new Boolean(false);
         /**
          * The default width of the {@link Maze}.
          */
-        private final int mazeWidth = 20;
+        //private final int mazeWidth = 20;
+        private final int mazeWidth = 5;
 
         /**
          * The default height of the {@link Maze}.
          */
-        private final int mazeHeight = 10;
+        private final int mazeHeight = 3;
 
         /**
          * The default random seed for the {@link Maze}.
@@ -229,29 +230,36 @@ public class Mazewar extends JFrame {
                     int i;
                    
                     
-                    mazeWarPacket myPacket = new mazeWarPacket();
-                    myPacket.clientName = name;
+                    //mazeWarPacket myPacket = new mazeWarPacket();
+                    //myPacket.clientName = name;
                     //maze.addClient(guiClient);
-                    
+                   
+                    Socket socket;
+                     
                     for(i=0; i<packetFromServer.numPlayers; i++){
                     //for(i=packetFromServer.numPlayers-1; i>=0; i--){
                         System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
                          if(!(packetFromServer.hostname.get(i).equals(localhost) && packetFromServer.port.get(i) == listenPort)){
-                            System.out.println("making connection"); 
-                            new ClientSocketConnection(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i)).start();
-                    //        socketList.add(new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i)));
-			        //        outStreamList.add(new ObjectOutputStream(socketList.get(j).getOutputStream()));
-			        //        inStreamList.add(new ObjectInputStream(socketList.get(j).getInputStream()));
-                    //        
-                    //        outStreamList.get(j).writeObject(testPacket);
-                    //        System.out.println("sending(client) " + name);
-                    //        testPacket =(mazeWarPacket) inStreamList.get(j).readObject();
-                    //        System.out.println("receiving(client) " + testPacket.clientName);
-                    //        j++;      
-                        
+                            System.out.println("making connection");
+                            socket = new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i));
+                            synchronized(clientList){
+                                clientList.add(null);    
+                            } 
+                            //new ClientSocketConnection(this, packetFromServer.hostname.get(i), packetFromServer.port.get(i)).start();
+                            synchronized(socketList) {
+                                socketList.add(socket);
+                            }
+                            synchronized(outStreamList) {
+                                outStreamList.add(new ObjectOutputStream(socket.getOutputStream()));
+                            }
+                            synchronized(inStreamList) {
+                                inStreamList.add(new ObjectInputStream(socket.getInputStream()));
+                            }
+                            new EventListener(this, inStreamList.get(i), outStreamList.get(i)).start();
                         }
                         else{
                             synchronized (clientList) {
+                                System.out.println("adding guiClient to clientList at "  + clientList.size());
                                 clientInfo.add(name);
                                 clientList.add(guiClient);
                             }
@@ -276,17 +284,31 @@ public class Mazewar extends JFrame {
                        System.out.println("spawned token");
                    }
                    
-                   mazeWarPacket joinPacket = new mazeWarPacket();
-                   joinPacket.type = mazeWarPacket.JOIN_REQ;
-                   synchronized(outstandingLocalEventsQ){
-                        outstandingLocalEventsQ.offer(joinPacket);
-                   }
+                   //if(player_id != 0) {
+                       //System.out.println("creating join packet to broadcast");
+                       //mazeWarPacket joinPacket = new mazeWarPacket();
+                       //joinPacket.type = mazeWarPacket.JOIN_REQ;
+                       //synchronized(outstandingLocalEventsQ){
+                       //     outstandingLocalEventsQ.offer(joinPacket);
+                       //}
+                  // }
+                  // else {
+                  //    maze.addClient(guiClient);
+                  //    synchronized(alreadyJoined) {
+                  //      alreadyJoined = true;
+                  //    }
+                  // }    
                    
                    new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
                    new EventProcessThread(this).start();
                    new MulticastThread(this).start(); 
-                   while(!alreadyJoined);
+                   boolean listening = true;
+                   while(listening) {
+                        synchronized(alreadyJoined) {
+                            if(alreadyJoined) break;
+                        }    
+                    }
                    //System.exit(0);
                    // int i;
                    // RemoteClient remoteclient; 

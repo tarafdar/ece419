@@ -7,17 +7,19 @@ public class EventProcessThread extends Thread{
 
 
     public EventProcessThread(Mazewar mazewar){
-        super("ServerProcessThread");
+        super("EventProcessThread");
         this.mazewar = mazewar;
     }
 
     public void run(){
         mazeWarPacket packet;
+        RemoteClient remoteclient;
         int i;
         while(!mazewar.quit){
             synchronized(mazewar.toProcessEventsQ){
                  if(mazewar.toProcessEventsQ.size()>0){
                      packet = mazewar.toProcessEventsQ.poll();
+                     System.out.println("Processing event of client " + packet.clientID);
                      if(packet.type == mazeWarPacket.FORWARD)
                          mazewar.clientList.get(packet.clientID).forward();
 
@@ -34,7 +36,7 @@ public class EventProcessThread extends Thread{
                         mazewar.clientList.get(packet.clientID).fire();                        
                         
                      else if(packet.type == mazeWarPacket.KILLED){
-                        mazewar.clientList.get(packet.killedClientID).killed(mazewar.clientList.get(packet.killedClientID), packet.point, packet.d);     
+                        mazewar.clientList.get(packet.killedClientID).killed(mazewar.clientList.get(packet.killedClientID), packet.points.get(0), packet.directions.get(0));     
                      }   
                      
                      else if(packet.type == mazeWarPacket.QUIT){
@@ -42,9 +44,18 @@ public class EventProcessThread extends Thread{
 
                      }
                      else if(packet.type == mazeWarPacket.JOIN_AT){
-                         mazewar.maze.addClient(mazewar.clientList.get(packet.clientID), packet.point, packet.d);
-
-
+                         System.out.println("Processing JOIN_AT from client ID " + packet.clientID);
+                         if (packet.points.get(0) == null)
+                            System.out.println("Point recvd is null");
+                         if (packet.directions.get(0) == null)
+                            System.out.println("directions recvd is null");
+                         
+                         remoteclient = new RemoteClient(packet.clientName);
+                         mazewar.maze.addClient(remoteclient, packet.points.get(0), packet.directions.get(0));
+                         mazewar.clientList.set(packet.clientID,remoteclient);
+                     
+                         //mazewar.maze.addClient(mazewar.clientList.get(packet.clientID), packet.points.get(0), packet.directions.get(0));
+                         
                      }
                     // else if(packet.type == mazeWarPacket.JOIN_REQ){
                     //    for(i=0; i<mazewar.otherClientLocations.size(); i++){

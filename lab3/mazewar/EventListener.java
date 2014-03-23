@@ -9,24 +9,27 @@ public class EventListener extends Thread {
     private int playerID;
 
 
-    public EventListener(Mazewar mazewar, ObjectInputStream in, ObjectOutputStream out, int playerID){
+    public EventListener(Mazewar mazewar, ObjectInputStream in, ObjectOutputStream out){
         this.mazewar = mazewar;
         this.in = in;
         this.out = out;
-        this.playerID = playerID;
+        //this.playerID = playerID;
     }
 
 
     public void run(){
+        int i;
         boolean listening = true;
         mazeWarPacket packetIn;
         mazeWarPacket packetOut;
+        RemoteClient remoteclient;
         System.out.println("In eventlistener");
         while(listening){
             try{
                 packetIn = (mazeWarPacket)in.readObject();
-                System.out.println("have read packet"); 
-                if(!(packetIn.type == mazeWarPacket.TOKEN || packetIn.type == mazeWarPacket.JOIN_REQ)){
+                System.out.println("received packet " + packetIn.typeToString() );
+                if(packetIn.isAck) System.out.println("which is an ACK");
+                if(!(packetIn.type == mazeWarPacket.TOKEN || packetIn.isAck == true)){
                     packetOut = packetIn;
                     synchronized(mazewar.toProcessEventsQ){
                         mazewar.toProcessEventsQ.offer(packetIn);
@@ -35,9 +38,26 @@ public class EventListener extends Thread {
                     }
                 }
                 else if(packetIn.type == mazeWarPacket.TOKEN){
-                    mazewar.hasToken = true;
                     System.out.println("Received token");
+                    synchronized(mazewar.alreadyJoined) {
+                        if(!mazewar.alreadyJoined) {
+                            for (i=0;i<mazewar.clientList.size();i++) {
+                                if(i != mazewar.player_id && packetIn.playerNames.get(i) != null){
+                                    remoteclient = new RemoteClient(packetIn.playerNames.get(i));
+                                    mazewar.maze.addClient(remoteclient , packetIn.points.get(i), packetIn.directions.get(i));
+                                    mazewar.clientList.set(i,remoteclient);
+                                }
+                            }    
+                        }
+                    }
+                    System.out.println("about to set token");
+                    synchronized(mazewar.hasToken) {        
+                        mazewar.hasToken = true;
+                    }
+                    System.out.println("finished setting token");
+                    
                 }
+               /*
                 else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == false){
                    packetOut = new mazeWarPacket();
                    packetOut.point = mazewar.guiClient.getPoint();  
@@ -60,7 +80,7 @@ public class EventListener extends Thread {
                     }
                     mazewar.maze.addClient(mazewar.clientList.get(packetIn.clientID), dp, dp.getDirection());     
                 } 
-               
+               */
                
                  
                 //should have token (when we receive ack guaranteed to have token)

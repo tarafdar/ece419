@@ -27,10 +27,11 @@ public class mazeWarPacket implements Serializable{
     public int numPlayers = 0;
     public int acks = 0;
     public String player_name;
+    public ArrayList <String> playerNames = new ArrayList<String> ();
     public ArrayList <String> hostname = new ArrayList<String> ();
     public ArrayList <Integer> port = new ArrayList <Integer> ();
-    public Point point;
-    public Direction d;
+    public ArrayList <Point> points = new ArrayList <Point> ();
+    public ArrayList <Direction> directions = new ArrayList <Direction> ();
 
     public int sequence_number;
     public int type;    
@@ -38,7 +39,9 @@ public class mazeWarPacket implements Serializable{
     public String typeToString() {
         switch(this.type) {
             case JOIN_REQ:
-                    return "JOIN";
+                    return "JOIN_REQ";
+            case JOIN_AT:
+                    return "JOIN_AT";
             case FIRE:
                     return "FIRE";
             case FORWARD:
@@ -55,6 +58,12 @@ public class mazeWarPacket implements Serializable{
                     return "QUIT";
             case KILLED:
                     return "KILLED";
+            case TOKEN:
+                    return "TOKEN";
+            case BYE:
+                    return "BYE";
+            case BULLET_TICK:
+                    return "BULLET_TICK";
 
         }
         //impossible

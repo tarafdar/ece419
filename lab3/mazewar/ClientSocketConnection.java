@@ -38,23 +38,24 @@ public class ClientSocketConnection extends Thread {
                 mazewar.inStreamList.add(in);
             }
 
-			mazeWarPacket packetToServer = new mazeWarPacket();
-            packetToServer.clientID = mazewar.player_id;
-			packetToServer.clientName = playerName;
-		    out.writeObject(packetToServer);
-			mazeWarPacket packetFromServer;
-			packetFromServer = (mazeWarPacket) in.readObject();
+			//mazeWarPacket packetToServer = new mazeWarPacket();
+            //packetToServer.clientID = mazewar.player_id;
+			//packetToServer.clientName = playerName;
+		    //out.writeObject(packetToServer);
+			//mazeWarPacket packetFromServer;
+			//packetFromServer = (mazeWarPacket) in.readObject();
             
-            synchronized(mazewar.clientList){
-            
-                mazewar.clientInfo.add(packetFromServer.clientName);
-                mazewar.clientList.add(new RemoteClient(packetFromServer.clientName));
+          //  synchronized(mazewar.clientList){
+          //  
+          //     // mazewar.clientInfo.add(packetFromServer.clientName);
+          //      //mazewar.clientList.add(new RemoteClient(packetFromServer.clientName));
+          //      mazewar.clientList.add(null);
 
-                System.out.println("we currently have " + mazewar.clientInfo.size() + " clients in the game and just added " + packetFromServer.clientName);
-            }
-            playerID = packetFromServer.clientID;
+          //      System.out.println("adding a remote client which we are connecting to");
+          //  }
+            //playerID = packetFromServer.clientID;
 			/* print server reply */
-            new EventListener(mazewar, in, out, playerID ).start();
+            new EventListener(mazewar, in, out).start();
 
 		} catch (UnknownHostException e) {
 			System.err.println("ERROR: Don't know where to connect!!");
@@ -62,9 +63,9 @@ public class ClientSocketConnection extends Thread {
 		} catch (IOException e) {
 			System.err.println("ERROR: Couldn't get I/O for the connection. in Client Sender Thread");
 			System.exit(1);
-		} catch (ClassNotFoundException e){
-			System.err.println("ERROR: Class not found");
-			System.exit(1);
+//		} catch (ClassNotFoundException e){
+//			System.err.println("ERROR: Class not found");
+//			System.exit(1);
 
 
 

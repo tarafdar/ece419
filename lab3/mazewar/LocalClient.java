@@ -154,8 +154,8 @@ public abstract class LocalClient extends Client {
                 mazeWarPacket packetToServer = new mazeWarPacket();
                 packetToServer.type = mazeWarPacket.KILLED;
                 packetToServer.clientName = this.getName();
-                packetToServer.point = point;
-                packetToServer.d = d;
+                packetToServer.points.add(point);
+                packetToServer.directions.add(d);
                 packetToServer.clientID = mazewar.player_id;
                 packetToServer.killedClientID = mazewar.clientList.indexOf(target);
                 synchronized(mazewar.outstandingLocalEventsQ){
