@@ -19,31 +19,39 @@ public class MulticastThread extends Thread {
         try {
             while (true) {
                 //numExpectedAcks = 0;
-                numExpectedAcks = mazewar.inStreamList.size() - 1;
                 sentJoin = false;
                 if(mazewar.hasToken) {
                     synchronized (mazewar.outstandingLocalEventsQ) {    
-                        if(mazewar.outstandingLocalEventsQ.peek() != null) {
-                            packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
-                                    
-                            System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
-                            //if (packetFromQueue.type == mazeWarPacket.JOIN_REQ)
-                            if (mazewar.otherClientLocations.size() == numExpectedAcks && !(mazewar.alreadyJoined))
-                                sentJoin = true;
-                            for(i=0; i<mazewar.outStreamList.size(); i++) {
-                                if (mazewar.outStreamList.get(i) != null) {
-                                    mazewar.outStreamList.get(i).writeObject(packetFromQueue);
-                                }
+                         synchronized (mazewar.outStreamList){
+                             numExpectedAcks = mazewar.inStreamList.size() - 1;
+                             if(mazewar.outstandingLocalEventsQ.peek() != null) {
+                                 packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
+                                         
+                                 System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
+                                 //if (packetFromQueue.type == mazeWarPacket.JOIN_REQ)
+                                     if (mazewar.otherClientLocations.size() == numExpectedAcks && !(mazewar.alreadyJoined))
+                                         sentJoin = true;
+                                     System.out.println("num out streams is " + mazewar.outStreamList.size());
+                                     for(i=0; i<mazewar.outStreamList.size(); i++) {
+                                         if (mazewar.outStreamList.get(i) != null) {
+                                             mazewar.outStreamList.get(i).writeObject(packetFromQueue);
+                                         }
+                                     }
+                                      if(!sentJoin) {
+                                          synchronized(mazewar.toProcessEventsQ) {                                   
+                                              mazewar.toProcessEventsQ.offer(packetFromQueue);
+                                          }
+                                      }
                             }
-                            if(!sentJoin) {
-                                synchronized(mazewar.toProcessEventsQ) {                                   
-                                    mazewar.toProcessEventsQ.offer(packetFromQueue);
-                                }
-                            }
-                       }
-                        while (mazewar.currentAcks.get() != numExpectedAcks);
-                        mazewar.currentAcks.set(0);
+//THIS IS THE PROBLEM                       
+//AFTER SECOND CLIENT JOINS
+//WE GET STUCK WAITING FOR ACKS!
+                             while (mazewar.currentAcks.get() != numExpectedAcks);
+                                 //System.out.println("waiting for acks :(, num out streams is " + mazewar.outStreamList.size());
+                                // System.out.println("stuck waiting for acks :( " );
+                         }
                     }
+                    mazewar.currentAcks.set(0);
                     if (sentJoin && !mazewar.alreadyJoined) {
                         synchronized(mazewar.toProcessEventsQ) {
                             mazewar.toProcessEventsQ.offer(packetFromQueue);

@@ -57,6 +57,7 @@ public class EventListener extends Thread {
                             mazewar.otherClientIDs.add(packetIn.clientID);
                         }
                     }
+                    mazewar.maze.addClient(mazewar.clientList.get(packetIn.clientID), dp, dp.getDirection());     
                 } 
                
                

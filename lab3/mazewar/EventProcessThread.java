@@ -46,18 +46,18 @@ public class EventProcessThread extends Thread{
 
 
                      }
-                     else if(packet.type == mazeWarPacket.JOIN_REQ){
-                        for(i=0; i<mazewar.otherClientLocations.size(); i++){
-                            mazewar.maze.addClient(mazewar.clientList.get(mazewar.otherClientIDs.get(i)), mazewar.otherClientLocations.get(i), mazewar.otherClientLocations.get(i).getDirection());     
-                            
-                            
-                            
-                        }    
+                    // else if(packet.type == mazeWarPacket.JOIN_REQ){
+                    //    for(i=0; i<mazewar.otherClientLocations.size(); i++){
+                    //        mazewar.maze.addClient(mazewar.clientList.get(mazewar.otherClientIDs.get(i)), mazewar.otherClientLocations.get(i), mazewar.otherClientLocations.get(i).getDirection());     
+                    //        
+                    //        
+                    //        
+                    //    }    
                              
                              
                          
                          
-                     } 
+                //     } 
                               
                  }
             }
