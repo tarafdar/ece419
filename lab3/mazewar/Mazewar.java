@@ -231,7 +231,7 @@ public class Mazewar extends JFrame {
                     
                     mazeWarPacket myPacket = new mazeWarPacket();
                     myPacket.clientName = name;
-                    maze.addClient(guiClient);
+                    //maze.addClient(guiClient);
                     
                     for(i=0; i<packetFromServer.numPlayers; i++){
                     //for(i=packetFromServer.numPlayers-1; i>=0; i--){
@@ -275,6 +275,13 @@ public class Mazewar extends JFrame {
                        hasToken = true;
                        System.out.println("spawned token");
                    }
+                   
+                   mazeWarPacket joinPacket = new mazeWarPacket();
+                   joinPacket.type = mazeWarPacket.JOIN_REQ;
+                   synchronized(outstandingLocalEventsQ){
+                        outstandingLocalEventsQ.offer(joinPacket);
+                   }
+                   
                    new ServerSocketConnection(serverSocket, this).start(); 
                    System.out.println("after listening");
                    new EventProcessThread(this).start();

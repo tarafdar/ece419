@@ -36,6 +36,7 @@ public class EventListener extends Thread {
                 }
                 else if(packetIn.type == mazeWarPacket.TOKEN){
                     mazewar.hasToken = true;
+                    System.out.println("Received token");
                 }
                 else if(packetIn.type == mazeWarPacket.JOIN_REQ && packetIn.isAck == false){
                    packetOut = new mazeWarPacket();

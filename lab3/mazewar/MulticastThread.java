@@ -42,17 +42,22 @@ public class MulticastThread extends Thread {
                                               mazewar.toProcessEventsQ.offer(packetFromQueue);
                                           }
                                       }
-                            }
+                                      int print = 0;
+                                      while (mazewar.currentAcks.get() != numExpectedAcks){
+                                          print++;
+                                          if(print == 2)
+                                             System.out.println("waiting for acks :(, num out streams is " + mazewar.outStreamList.size());
+                                      }
+                                         // System.out.println("stuck waiting for acks :( " );
+                                     }
 //THIS IS THE PROBLEM                       
 //AFTER SECOND CLIENT JOINS
 //WE GET STUCK WAITING FOR ACKS!
-                             while (mazewar.currentAcks.get() != numExpectedAcks);
-                                 //System.out.println("waiting for acks :(, num out streams is " + mazewar.outStreamList.size());
-                                // System.out.println("stuck waiting for acks :( " );
                          }
                     }
                     mazewar.currentAcks.set(0);
                     if (sentJoin && !mazewar.alreadyJoined) {
+                        System.out.println("in second join if"); 
                         synchronized(mazewar.toProcessEventsQ) {
                             mazewar.toProcessEventsQ.offer(packetFromQueue);
                         }
