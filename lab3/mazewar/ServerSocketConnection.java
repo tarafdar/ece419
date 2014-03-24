@@ -52,11 +52,17 @@ public class ServerSocketConnection extends Thread {
             //       mazewar.clientInfo.add(packetFromClient.clientName);
                    mazewar.clientList.add(null);
                    System.out.println("just added a client from a remote connection to listening port");
-                }
             //    playerID = packetFromClient.clientID;
-                if (mazewar.nextInRingIdx.get() == 0) {
-                    mazewar.nextInRingIdx.set(mazewar.player_id + 1); 
-                }    
+                   if (mazewar.nextInRingIdx.get() == 0) {
+                       mazewar.nextInRingIdx.set(mazewar.player_id + 1);
+                       if(mazewar.player_id == 0){
+                           mazewar.prevInRingIdx.set(mazewar.clientList.size() - 1);
+                       }
+                       else{
+                           mazewar.prevInRingIdx.set(mazewar.player_id - 1);
+                       } 
+                   }    
+                }
                 //packetToClient.clientName = playerName;
                 //packetToClient.clientID = mazewar.player_id;
                 //toClient.writeObject(packetToClient);

@@ -32,7 +32,8 @@ public class mazeWarPacket implements Serializable{
     public ArrayList <Integer> port = new ArrayList <Integer> ();
     public ArrayList <Point> points = new ArrayList <Point> ();
     public ArrayList <Direction> directions = new ArrayList <Direction> ();
-
+    public ArrayList <Integer> scores = new ArrayList <Integer> ();
+    public ArrayList <String> scoreNames = new ArrayList <String> ();
     public int sequence_number;
     public int type;    
     

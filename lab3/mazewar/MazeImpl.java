@@ -206,7 +206,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 addClient(client, point);
         }
         
-        public synchronized void addClient(Client client, Point point1, Direction d1) {
+        public synchronized void addClient(Client client, Point point1, Direction d1, int score) {
                 System.out.println("Client is " + client.getName() + " my point is " + point1.getX() + "," + point1.getY() + " facing " + d1.toString());
                 
                 CellImpl cell = getCellImpl(point1);
@@ -215,7 +215,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 client.registerMaze(this);
                 client.addClientListener(this);
                 update();
-                notifyClientAdd(client);
+                notifyClientAdd(client, score);
         }
         
         
@@ -290,7 +290,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 
                 /* Write the new cell */
                 synchronized(projectileMap) {
-                    System.out.println("Creating new projectile for client " + client.getName());
+                    //System.out.println("Creating new projectile for client " + client.getName());
                     clientFired.add(client);
                     Projectile prj = new Projectile(client);
                     projectileMap.put(prj, newPoint);
@@ -407,7 +407,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                
                 //PROJECTILE DEBUG
                 
-                 System.out.println("PROJECTILE IS STARTING AT: (" + dp.getX() + " ," + dp.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
+                // System.out.println("PROJECTILE IS STARTING AT: (" + dp.getX() + " ," + dp.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
                  
                 /* Check for a wall */
                 if(cell.isWall(d)) {
@@ -667,6 +667,17 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         assert(o instanceof MazeListener);
                         MazeListener ml = (MazeListener)o;
                         ml.clientAdded(c);
+                } 
+        }
+        
+        private void notifyClientAdd(Client c, int score) {
+                assert(c != null);
+                Iterator i = listenerSet.iterator();
+                while (i.hasNext()) {
+                        Object o = i.next();
+                        assert(o instanceof MazeListener);
+                        MazeListener ml = (MazeListener)o;
+                        ml.clientAddedScore(c, score);
                 } 
         }
         

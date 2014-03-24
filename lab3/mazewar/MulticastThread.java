@@ -31,11 +31,11 @@ public class MulticastThread extends Thread {
                                 numExpectedAcks = mazewar.inStreamList.size() - 1;
                                  packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
                                          
-                                 System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
+                                // System.out.println("Multicasting packet on client of type " +  packetFromQueue.typeToString());
                                  //if (packetFromQueue.type == mazeWarPacket.JOIN_REQ)
                                     // if (mazewar.otherClientLocations.size() == numExpectedAcks && !(mazewar.alreadyJoined))
                                     //     sentJoin = true;
-                                     System.out.println("num out streams is " + mazewar.outStreamList.size());
+                                  //   System.out.println("num out streams is " + mazewar.outStreamList.size());
                                      for(i=0; i<mazewar.outStreamList.size(); i++) {
                                          if (mazewar.outStreamList.get(i) != null) {
                                              mazewar.outStreamList.get(i).writeObject(packetFromQueue);
@@ -46,12 +46,7 @@ public class MulticastThread extends Thread {
                                               mazewar.toProcessEventsQ.offer(packetFromQueue);
                                           }
                                      // }
-                                      int print = 0;
-                                      while (mazewar.currentAcks.get() != numExpectedAcks){
-                                          print++;
-                                          if(print == 2)
-                                             System.out.println("waiting for acks :(, num out streams is " + mazewar.outStreamList.size());
-                                      }
+                                      while (mazewar.currentAcks.get() != numExpectedAcks);
                                       mazewar.currentAcks.set(0);
                                          // System.out.println("stuck waiting for acks :( " );
                                      }
@@ -108,16 +103,20 @@ public class MulticastThread extends Thread {
                                 tokenPacket.playerNames.add(mazewar.clientList.get(i).getName());
                                 tokenPacket.points.add(mazewar.clientList.get(i).getPoint());
                                 tokenPacket.directions.add(mazewar.clientList.get(i).getOrientation());
+                                tokenPacket.scoreNames.add((String)mazewar.scoreModel.getValueAt(i,0));
+                                tokenPacket.scores.add((Integer)mazewar.scoreModel.getValueAt(i, 1));
                             }
                             else {
                                 tokenPacket.playerNames.add(null);
                                 tokenPacket.points.add(null);
                                 tokenPacket.directions.add(null);
+                                tokenPacket.scores.add(0);
                             }
                         }
+
                         mazewar.outStreamList.get(mazewar.nextInRingIdx.get()).writeObject(tokenPacket);
                         mazewar.hasToken = false;
-                        System.out.println("sending out token"); 
+                        //System.out.println("sending out token"); 
                         if(packetFromQueue != null && packetFromQueue.type == mazeWarPacket.QUIT){
                           mazewar.quit();
                         }
@@ -126,8 +125,8 @@ public class MulticastThread extends Thread {
             }   
             }
         } catch (IOException e) {
-            System.err.println("IOE exception in Multicast Thread");
-            e.printStackTrace();     
+            System.out.println("Someone left the game :(");
+            //e.printStackTrace();     
         } 
     }
 }        

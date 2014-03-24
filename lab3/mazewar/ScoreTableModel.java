@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.Serializable;
   
 /**
  * An implementation of a {@link TableModel} that is designed to listen to
@@ -76,6 +77,12 @@ public class ScoreTableModel implements TableModel, MazeListener {
                 public void adjustScore(int mod) {
                         score = score + mod;
                 }
+               
+               
+                public void setScore(int set){
+                        score = set;   
+                    
+                } 
                 
                 public int compareTo(Object o) {
                         assert(o instanceof ScoreWrapper);
@@ -197,6 +204,15 @@ public class ScoreTableModel implements TableModel, MazeListener {
                 notifyListeners();
         } 
         
+        public void clientAddedScore(Client client, int score) {
+                assert(client != null);
+                ScoreWrapper s = new ScoreWrapper(client); 
+                s.setScore(score); 
+                scoreSet.add(s);
+                clientMap.put(client, s);
+                notifyListeners();
+        } 
+        
         public void clientFired(Client client) {
                 assert(client != null);
                 Object o = clientMap.get(client);
@@ -207,6 +223,7 @@ public class ScoreTableModel implements TableModel, MazeListener {
                 scoreSet.add(s);
                 notifyListeners();
         }
+       
         
         public void clientKilled(Client source, Client target) {
                 assert(source != null);

@@ -244,6 +244,10 @@ public class OverheadMazePanel extends JPanel implements MazeListener {
         public void clientAdded(Client c) {
                 // Doesn't need to do anything
         }
+        
+        public void clientAddedScore(Client c, int score) {
+                // Doesn't need to do anything
+        }
 
         public void clientRemoved(Client c) {
                 // Doesn't need to do anything

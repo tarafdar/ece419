@@ -51,7 +51,9 @@ public class Mazewar extends JFrame {
 //        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
         //public SequenceQueue<mazeWarPacket> q;
         public AtomicInteger nextInRingIdx = new AtomicInteger();        
+        public AtomicInteger prevInRingIdx = new AtomicInteger();        
         public Boolean hasToken = new Boolean(false); 
+        public Boolean waitToClose = new Boolean(false); 
         public ArrayList<String> clientInfo = new ArrayList<String>();
 //        public int local_sequence_number = 1;
         public AtomicInteger currentAcks = new AtomicInteger();
@@ -69,6 +71,7 @@ public class Mazewar extends JFrame {
         public mazeWarPacket enqueuePacket;
         public BitSet sendersBV = null;
         public Boolean alreadyJoined =  new Boolean(false);
+        public ScoreTableModel scoreModel;
         /**
          * The default width of the {@link Maze}.
          */
@@ -140,12 +143,24 @@ public class Mazewar extends JFrame {
         /**
          * Static method for performing cleanup before exiting the game.
          */
-        public static void quit() {
+        public void quit() {
                 // Put any network clean-up code you might have here.
                 // (inform other implementations on the network that you have 
                 //  left, etc.)
-                
+               
+                int i; 
                 try{
+                    for(i=0; i<outStreamList.size(); i++){
+                        if(outStreamList != null && outStreamList.get(i) != null)
+                            outStreamList.get(i).close();
+                        if(inStreamList != null && inStreamList.get(i) != null)
+                            inStreamList.get(i).close();
+                        if(socketList != null && socketList.get(i) != null)
+                            socketList.get(i).close();
+
+
+                     }
+
                     out.close();
                     in.close(); 
                     clientSocket.close();
@@ -168,14 +183,14 @@ public class Mazewar extends JFrame {
                 // Throw up a dialog to get the GUIClient name.
                 name = JOptionPane.showInputDialog("Enter your name");
                 if((name == null) || (name.length() == 0)) {
-                  Mazewar.quit();
+                  quit();
                 }
                 maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed, name);
                 assert(maze != null);
                 
                 // Have the ScoreTableModel listen to the maze to find
                 // out how to adjust scores.
-                ScoreTableModel scoreModel = new ScoreTableModel();
+                scoreModel = new ScoreTableModel();
                 assert(scoreModel != null);
                 maze.addMazeListener(scoreModel);
                  
@@ -303,8 +318,8 @@ public class Mazewar extends JFrame {
                    System.out.println("after listening");
                    new EventProcessThread(this).start();
                    new MulticastThread(this).start(); 
-                   boolean listening = true;
-                   while(listening) {
+                   boolean waitingforjoin = true;
+                   while(waitingforjoin) {
                         synchronized(alreadyJoined) {
                             if(alreadyJoined) break;
                         }    
