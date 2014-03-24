@@ -10,6 +10,7 @@ public class EventListener extends Thread {
 
 
     public EventListener(Mazewar mazewar, ObjectInputStream in, ObjectOutputStream out){
+        super("EventListener");
         this.mazewar = mazewar;
         this.in = in;
         this.out = out;
@@ -38,7 +39,7 @@ public class EventListener extends Thread {
                     }
                 }
                 else if(packetIn.type == mazeWarPacket.TOKEN){
-//                    System.out.println("Received token");
+                    //                    System.out.println("Received token");
                     synchronized(mazewar.alreadyJoined) {
                         if(!mazewar.alreadyJoined) {
                             for (i=0;i<mazewar.clientList.size();i++) {
@@ -64,15 +65,15 @@ public class EventListener extends Thread {
                             mazewar.waitToClose = false;
                         }
                     }
-                   
-                   // System.out.println("about to set token");
+
+                    // System.out.println("about to set token");
                     synchronized(mazewar.hasToken) {        
                         mazewar.hasToken = true;
                     }
                     //System.out.println("finished setting token");
-                    
+
                 }
-                
+
                 else if (packetIn.type == mazeWarPacket.QUIT && packetIn.isAck == false){
                     mazewar.maze.removeClient(mazewar.clientList.get(packetIn.clientID));
                     if(mazewar.prevInRingIdx.get() != packetIn.clientID){
@@ -80,7 +81,7 @@ public class EventListener extends Thread {
                         mazewar.outStreamList.get(packetIn.clientID).close();
                         mazewar.inStreamList.get(packetIn.clientID).close();
                         mazewar.socketList.get(packetIn.clientID).close();
-                    
+
                     }
                     else{
                         synchronized(mazewar.waitToClose){
@@ -89,7 +90,7 @@ public class EventListener extends Thread {
                         }
                     }
                 }
-                 
+
                 //should have token (when we receive ack guaranteed to have token)
                 else if(packetIn.isAck == true ){
                     mazewar.currentAcks.getAndIncrement();
@@ -99,7 +100,7 @@ public class EventListener extends Thread {
             catch(IOException e){
                 System.err.println("Closing connection");
                 this.destroy();
-               // System.exit(1);
+                // System.exit(1);
 
 
 
