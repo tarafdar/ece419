@@ -26,18 +26,32 @@ public class NameServerHandlerThread extends Thread {
 			packetFromClient = (mazeWarPacket) fromClient.readObject();
            
             System.out.println("in nameserver"); 
-            synchronized (server) {
+            synchronized (server.hostnames) {
                 server.hostnames.add(packetFromClient.hostname.get(0));     
-                server.ports.add(packetFromClient.port.get(0));
-                System.out.println("Recieved connection from "+ packetFromClient.hostname.get(0) + " who is listening on port " + packetFromClient.port.get(0));
-                System.out.println("Returning connections with numplayers = " + server.numPlayers.get());
-                for (i=0; i<server.numPlayers.get(); i++)
-                    System.out.println("Player "+ i + " " + server.hostnames.get(i) + " " +server.ports.get(i));
-                packetToClient.hostname = server.hostnames;
-                packetToClient.port = server.ports;
-                packetToClient.numPlayers = server.numPlayers.get();
             }
+            synchronized (server.ports) {
+                server.ports.add(packetFromClient.port.get(0));
+            }
+            System.out.println("Recieved connection from "+ packetFromClient.hostname.get(0) + " who is listening on port " + packetFromClient.port.get(0));
+            System.out.println("Returning connections with numplayers = " + server.numPlayers.get());
+            for (i=0; i<server.numPlayers.get(); i++)
+                System.out.println("Player "+ i + " " + server.hostnames.get(i) + " " +server.ports.get(i));
+            synchronized (server.hostnames) {
+                packetToClient.hostname = server.hostnames;
+            }
+            synchronized (server.ports) {
+                packetToClient.port = server.ports;
+            }
+            packetToClient.numPlayers = server.numPlayers.get();
             toClient.writeObject(packetToClient);
+            packetFromClient = (mazeWarPacket) fromClient.readObject();
+            synchronized (server.hostnames) {
+                server.hostnames.remove(packetFromClient.clientID);
+            }
+            synchronized (server.ports) {
+                server.ports.remove(packetFromClient.clientID);
+            }
+            server.numPlayers.getAndDecrement(); 
             fromClient.close();
             toClient.close();
             socket.close();

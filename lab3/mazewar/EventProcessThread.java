@@ -44,11 +44,11 @@ public class EventProcessThread extends Thread{
                         //shouldnt happen
                      }
                      else if(packet.type == mazeWarPacket.JOIN_AT){
-                         System.out.println("Processing JOIN_AT from client ID " + packet.clientID);
-                         if (packet.points.get(0) == null)
-                            System.out.println("Point recvd is null");
-                         if (packet.directions.get(0) == null)
-                            System.out.println("directions recvd is null");
+                     //    System.out.println("Processing JOIN_AT from client ID " + packet.clientID);
+                     //    if (packet.points.get(0) == null)
+                     //       System.out.println("Point recvd is null");
+                     //    if (packet.directions.get(0) == null)
+                     //       System.out.println("directions recvd is null");
                          
                          remoteclient = new RemoteClient(packet.clientName);
                          mazewar.maze.addClient(remoteclient, packet.points.get(0), packet.directions.get(0), 0);

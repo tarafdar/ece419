@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.BitSet;
 
 public abstract class LocalClient extends Client {
-        public ObjectOutputStream out;
         public Mazewar mazewar;
         /** 
          * Create a {@link Client} local to this machine.
@@ -43,10 +42,9 @@ public abstract class LocalClient extends Client {
             assert(name != null);
         }
         
-        public LocalClient(String name, ObjectOutputStream out, Mazewar mazewar) {
+        public LocalClient(String name, Mazewar mazewar) {
             super(name);
             assert(name != null);
-            this.out = out;
             this.mazewar = mazewar;
         }
 
@@ -59,7 +57,7 @@ public abstract class LocalClient extends Client {
                 synchronized(mazewar.outstandingLocalEventsQ){
                     mazewar.outstandingLocalEventsQ.offer(packetToServer);
                 }
-                mazewar.quit = true;
+                //mazewar.quit = true;
        }
 
         public void enqueueForward(){

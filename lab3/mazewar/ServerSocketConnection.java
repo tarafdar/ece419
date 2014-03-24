@@ -13,7 +13,7 @@ public class ServerSocketConnection extends Thread {
         this.mazewar = mazewar;
 	    this.serversocket = serversocket;
         this.playerName = mazewar.name;
-		System.out.println("Created new Thread to listen for other client connections");
+	//	System.out.println("Created new Thread to listen for other client connections");
 	}
 
 	public void run() {
@@ -53,15 +53,7 @@ public class ServerSocketConnection extends Thread {
                    mazewar.clientList.add(null);
                    System.out.println("just added a client from a remote connection to listening port");
             //    playerID = packetFromClient.clientID;
-                   if (mazewar.nextInRingIdx.get() == 0) {
-                       mazewar.nextInRingIdx.set(mazewar.player_id + 1);
-                       if(mazewar.player_id == 0){
-                           mazewar.prevInRingIdx.set(mazewar.clientList.size() - 1);
-                       }
-                       else{
-                           mazewar.prevInRingIdx.set(mazewar.player_id - 1);
-                       } 
-                   }    
+                   mazewar.updateRingIdx();
                 }
                 //packetToClient.clientName = playerName;
                 //packetToClient.clientID = mazewar.player_id;

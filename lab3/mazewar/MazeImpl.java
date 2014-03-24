@@ -207,7 +207,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
         }
         
         public synchronized void addClient(Client client, Point point1, Direction d1, int score) {
-                System.out.println("Client is " + client.getName() + " my point is " + point1.getX() + "," + point1.getY() + " facing " + d1.toString());
+                //System.out.println("Client is " + client.getName() + " my point is " + point1.getX() + "," + point1.getY() + " facing " + d1.toString());
                 
                 CellImpl cell = getCellImpl(point1);
                 cell.setContents(client);
@@ -439,11 +439,11 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         // Bullets destroy each other
                                 assert(contents instanceof Projectile);
                                 secondproj = (Projectile)contents;
-                                System.out.println("Projectile is destroying each other " + prj.getOwner().getName() + " is hitting " + secondproj.getOwner().getName());
-                                if(newCell.getContents() == null || cell.getContents() == null) 
-                                    System.out.println("one of the cells trying to clear is already empty");
-                                if((dp.getX() == newPoint.getX()) && (dp.getY() == newPoint.getY()))
-                                    System.out.println("both of the projectiles are at the same point");
+                        //        System.out.println("Projectile is destroying each other " + prj.getOwner().getName() + " is hitting " + secondproj.getOwner().getName());
+                        //        if(newCell.getContents() == null || cell.getContents() == null) 
+                        //            System.out.println("one of the cells trying to clear is already empty");
+                        //        if((dp.getX() == newPoint.getX()) && (dp.getY() == newPoint.getY()))
+                        //            System.out.println("both of the projectiles are at the same point");
                                 newCell.setContents(null);
                                 cell.setContents(null);
                                 deadPrj.add(prj);
@@ -458,7 +458,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 /* Write the new cell */
                 projectileMap.put(prj, newPoint);
                 newCell.setContents(prj);
-                System.out.println("PROJECTILE MOVED TO: (" + newPoint.getX() + " ," + newPoint.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
+                //System.out.println("PROJECTILE MOVED TO: (" + newPoint.getX() + " ," + newPoint.getY() + ")"  + "Owner is " + prj.getOwner().getName() );
                 update();
                 return deadPrj;
                 }

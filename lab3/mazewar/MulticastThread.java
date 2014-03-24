@@ -23,14 +23,14 @@ public class MulticastThread extends Thread {
                 //System.out.println("checking for token");
                 synchronized(mazewar.hasToken) {
                     if(mazewar.hasToken) {
-                        //System.out.println("in Multicast Thread and have token");
+                       // System.out.println("in Multicast Thread and have token");
                         synchronized (mazewar.outstandingLocalEventsQ) {    
                             synchronized (mazewar.outStreamList){
                                 numExpectedAcks = 0;
                                 if(mazewar.outstandingLocalEventsQ.peek() != null) {
                                     numExpectedAcks = mazewar.inStreamList.size() - 1;
                                     packetFromQueue = mazewar.outstandingLocalEventsQ.poll();
-
+                                   // if(packetFromQueue.type == mazeWarPacket.QUIT) System.out.println("sending out quit from queue expected num acks = "+ numExpectedAcks + " and i have this many acks " + mazewar.currentAcks.get());
                                     for(i=0; i<mazewar.outStreamList.size(); i++) {
                                         if (mazewar.outStreamList.get(i) != null) {
                                             mazewar.outStreamList.get(i).writeObject(packetFromQueue);
@@ -41,7 +41,8 @@ public class MulticastThread extends Thread {
                                         mazewar.toProcessEventsQ.offer(packetFromQueue);
                                     }
                                     // }
-                                    while (mazewar.currentAcks.get() != numExpectedAcks);
+
+                                    while (mazewar.currentAcks.get() != numExpectedAcks);// System.out.println("have this many acks " + mazewar.currentAcks.get());
                                     mazewar.currentAcks.set(0);
                                 }
                             }
@@ -49,7 +50,7 @@ public class MulticastThread extends Thread {
                         synchronized (mazewar.alreadyJoined) {
                             if (!mazewar.alreadyJoined) {
                                 numExpectedAcks = mazewar.inStreamList.size() - 1;
-                                System.out.println("in second join if"); 
+                                //System.out.println("in second join if"); 
                                 mazewar.maze.addClient(mazewar.guiClient);    
                                 joinAtPacket = new mazeWarPacket();
                                 joinAtPacket.type = mazeWarPacket.JOIN_AT;
@@ -71,38 +72,45 @@ public class MulticastThread extends Thread {
                         tokenPacket = new mazeWarPacket();
                         tokenPacket.type = mazeWarPacket.TOKEN;
                         tokenPacket.numPlayers = mazewar.clientList.size();
+                        tokenPacket.clientID = mazewar.player_id;
                         //clear the acks
                         //send the token
-                        if(mazewar.outStreamList.get(mazewar.nextInRingIdx.get()) != null){
-                            for(i=0; i<mazewar.clientList.size(); i++) {
-                                if(mazewar.clientList.get(i) != null) {
-                                    tokenPacket.playerNames.add(mazewar.clientList.get(i).getName());
-                                    tokenPacket.points.add(mazewar.clientList.get(i).getPoint());
-                                    tokenPacket.directions.add(mazewar.clientList.get(i).getOrientation());
-                                    tokenPacket.scoreNames.add((String)mazewar.scoreModel.getValueAt(i,0));
-                                    tokenPacket.scores.add((Integer)mazewar.scoreModel.getValueAt(i, 1));
+                        synchronized(mazewar.outStreamList){
+                            if(mazewar.outStreamList.get(mazewar.nextInRingIdx.get()) != null){
+                                for(i=0; i<mazewar.clientList.size(); i++) {
+                                    if(mazewar.clientList.get(i) != null) {
+                                        tokenPacket.playerNames.add(mazewar.clientList.get(i).getName());
+                                        tokenPacket.points.add(mazewar.clientList.get(i).getPoint());
+                                        tokenPacket.directions.add(mazewar.clientList.get(i).getOrientation());
+                                        tokenPacket.scoreNames.add((String)mazewar.scoreModel.getValueAt(i,0));
+                                        tokenPacket.scores.add((Integer)mazewar.scoreModel.getValueAt(i, 1));
+                                    }
+                                    else {
+                                        tokenPacket.playerNames.add(null);
+                                        tokenPacket.points.add(null);
+                                        tokenPacket.directions.add(null);
+                                        tokenPacket.scores.add(0);
+                                    }
                                 }
-                                else {
-                                    tokenPacket.playerNames.add(null);
-                                    tokenPacket.points.add(null);
-                                    tokenPacket.directions.add(null);
-                                    tokenPacket.scores.add(0);
+                                mazewar.outStreamList.get(mazewar.nextInRingIdx.get()).writeObject(tokenPacket);
+                                mazewar.hasToken = false;
+                                //System.out.println("sending out token"); 
+                                if(packetFromQueue != null && packetFromQueue.type == mazeWarPacket.QUIT){
+                                    mazewar.quit();
                                 }
                             }
-
-                            mazewar.outStreamList.get(mazewar.nextInRingIdx.get()).writeObject(tokenPacket);
-                            mazewar.hasToken = false;
-                            //System.out.println("sending out token"); 
-                            if(packetFromQueue != null && packetFromQueue.type == mazeWarPacket.QUIT){
+                            else if(packetFromQueue != null && packetFromQueue.type == mazeWarPacket.QUIT)
                                 mazewar.quit();
-                            }
+
                         }
+                        
                     }
                 }   
             }
         } catch (IOException e) {
-            System.out.println("Someone left the game :(");
-            //e.printStackTrace();     
+           // System.out.println("Someone left the game :(");
+            e.printStackTrace();     
+            System.exit(1);
         } 
     }
 }        

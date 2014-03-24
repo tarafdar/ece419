@@ -43,9 +43,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 public class Mazewar extends JFrame {
-    public static Socket clientSocket = null;
-    public static ObjectOutputStream out = null;
-    public static ObjectInputStream in = null;
+    public static Socket nameServerSocket = null;
+    public static ObjectOutputStream nameServerOut = null;
+    public static ObjectInputStream nameServerIn = null;
     public boolean quit = false;
 
     //        public ArrayList<mazeWarPacket> q = new ArrayList<mazeWarPacket>();
@@ -140,6 +140,33 @@ public class Mazewar extends JFrame {
         console.setText("");
     }
 
+    public void updateRingIdx() {
+        synchronized (clientList){
+            prevInRingIdx.set(player_id - 1);
+            nextInRingIdx.set(player_id + 1);
+
+            if (player_id == 0) {
+                prevInRingIdx.set(clientList.size() - 1);
+            }
+            if (player_id == clientList.size() - 1) {
+                nextInRingIdx.set(0);
+            }
+        }
+    //    System.out.println("setting next in ring to " + nextInRingIdx.get());
+    //    System.out.println("setting prev in ring to " + prevInRingIdx.get());
+        //    if (nextInRingIdx.get() == 0) {
+    //        nextInRingIdx.set(player_id + 1);
+    //        System.out.println("setting next in ring to " + nextInRingIdx.get());
+    //    }    
+    //    if(player_id == 0){
+    //        prevInRingIdx.set(clientList.size() - 1);
+    //        System.out.println("setting prev in ring to " + prevInRingIdx.get());
+    //    }
+    //    else{
+    //        prevInRingIdx.set(player_id - 1);
+    //        System.out.println("setting prev in ring to " + prevInRingIdx.get());
+    //    } 
+    }
     /**
      * Static method for performing cleanup before exiting the game.
      */
@@ -147,8 +174,9 @@ public class Mazewar extends JFrame {
         // Put any network clean-up code you might have here.
         // (inform other implementations on the network that you have 
         //  left, etc.)
-
+        System.out.println("QUITTING FROM MAZEWAR");
         int i; 
+        mazeWarPacket quitPacket = new mazeWarPacket();
         try{
             for(i=0; i<outStreamList.size(); i++){
                 if(outStreamList != null && outStreamList.get(i) != null)
@@ -160,10 +188,13 @@ public class Mazewar extends JFrame {
 
 
             }
-
-            out.close();
-            in.close(); 
-            clientSocket.close();
+            
+            quitPacket.type = mazeWarPacket.QUIT;
+            quitPacket.clientID = player_id;
+            nameServerOut.writeObject(quitPacket); 
+            nameServerOut.close();
+            nameServerIn.close(); 
+            nameServerSocket.close();
         }
         catch(IOException e){
             System.out.println("Exit error??");
@@ -209,10 +240,10 @@ public class Mazewar extends JFrame {
             listenPort = Integer.parseInt(args[2]);
 
             serverSocket = new ServerSocket(listenPort);
-            clientSocket = new Socket(hostname, port);
+            nameServerSocket = new Socket(hostname, port);
 
-            out = new ObjectOutputStream(clientSocket.getOutputStream());
-            in = new ObjectInputStream(clientSocket.getInputStream());
+            nameServerOut = new ObjectOutputStream(nameServerSocket.getOutputStream());
+            nameServerIn = new ObjectInputStream(nameServerSocket.getInputStream());
 
             java.net.InetAddress addr = java.net.InetAddress.getLocalHost();
             localhost = addr.getHostName();
@@ -235,12 +266,12 @@ public class Mazewar extends JFrame {
             packetToServer.type = mazeWarPacket.JOIN_REQ;
             packetToServer.hostname.add(localhost);   
             packetToServer.port.add(listenPort);   
-            out.writeObject(packetToServer);
+            nameServerOut.writeObject(packetToServer);
 
-            guiClient = new GUIClient(name, out, this);
+            guiClient = new GUIClient(name, this);
             this.addKeyListener(guiClient);
             mazeWarPacket packetFromServer = new mazeWarPacket();
-            packetFromServer = (mazeWarPacket) in.readObject();
+            packetFromServer = (mazeWarPacket) nameServerIn.readObject();
 
             int i;
 
@@ -249,9 +280,9 @@ public class Mazewar extends JFrame {
             Socket socket;
 
             for(i=0; i<packetFromServer.numPlayers; i++){
-                System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
+                //System.out.println("hostnames is " + packetFromServer.hostname.get(i) +  " port is " + packetFromServer.port.get(i));
                 if(!(packetFromServer.hostname.get(i).equals(localhost) && packetFromServer.port.get(i) == listenPort)){
-                    System.out.println("making connection");
+                  //  System.out.println("making connection");
                     socket = new Socket(packetFromServer.hostname.get(i), packetFromServer.port.get(i));
                     synchronized(clientList){
                         clientList.add(null);    
@@ -270,7 +301,7 @@ public class Mazewar extends JFrame {
                 }
                 else{
                     synchronized (clientList) {
-                        System.out.println("adding guiClient to clientList at "  + clientList.size());
+                       // System.out.println("adding guiClient to clientList at "  + clientList.size());
                         clientInfo.add(name);
                         clientList.add(guiClient);
                     }
@@ -292,12 +323,11 @@ public class Mazewar extends JFrame {
             System.out.println("Player ID is " + player_id);
             if(player_id == 0) {
                 hasToken = true;
-                System.out.println("spawned token");
+                //System.out.println("spawned token");
             }
-
+            updateRingIdx();
 
             new ServerSocketConnection(serverSocket, this).start(); 
-            System.out.println("after listening");
             new EventProcessThread(this).start();
             new MulticastThread(this).start(); 
             boolean waitingforjoin = true;
