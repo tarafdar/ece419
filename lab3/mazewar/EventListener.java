@@ -55,6 +55,28 @@ public class EventListener extends Thread {
                                 }
                             }    
                         }
+                      //  else{
+                      //      
+                      ////      System.out.println("Receiving token from " + packetIn.clientID);
+                      ////      System.out.println("scores size is " + packetIn.scoreNames.size());
+                      ////      System.out.println("players size is " + packetIn.playerNames.size());
+                      //      for(i=0; i<packetIn.playerNames.size();i++){        
+                      //          if(i != mazewar.player_id && packetIn.playerNames.get(i) != null){
+                      //              for(j=0; j<packetIn.scoreNames.size(); j++){
+                     ////                   System.out.println("J is " + j); 
+                     ////                   System.out.println("player name in index " + j + " is " + packetIn.playerNames.get(j)); 
+                     ////                   System.out.println("score name in index " + j + " is " + packetIn.scoreNames.get(j)); 
+                     ////                   System.out.println("scores " + j + " is " + packetIn.scores.get(j)); 
+                      //                  if(packetIn.scoreNames.get(j).equals(packetIn.playerNames.get(i)))
+                      //                      break;
+                      //                  
+                      //              }
+                      //              if(!packetIn.playerNames.get(i).equals(mazewar.name))
+                      //                  mazewar.scoreModel.clientUpdateScore(mazewar.clientList.get(i), packetIn.scores.get(j));   
+                      //          }
+                      //      }    
+
+                      //  }
                     }
                     synchronized(mazewar.waitToClose){
                         if(mazewar.waitToClose){
