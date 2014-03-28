@@ -31,32 +31,69 @@ public class Client{
 
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
-        String receivedAck;
+        ClientPacket packetReceived;
+        
+        System.out.print("Accepting Input: ");
+        ClientPacket cp = null;
+        String[] tokens;
+        String delims = "[ ]+";
         
         try{
         while ((userInput = stdIn.readLine()) != null && !(userInput.toLowerCase().equals("quit"))) {
             
             System.out.print("Accepting Input: ");
-            try{       
-                nodeCreatedSignal.await();
-            } catch(Exception e) {
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
+            tokens = userInput.split(delims);
+            
+            if(tokens[0].toLowerCase().equals("quit")){
+                System.out.println("QUITTING");
+                break;
             }
-            out.writeObject(userInput);    
-                
-            //receivedAck = (String)in.readObject();
-            //System.out.println("receieved this from the jt " + receivedAck);
+            else if(tokens.length != 2){
+                System.out.println("Incorrect number of tokens, please enter in form of <JOB_REQUEST> <HASH>");
+                System.out.print("Accepting Input: ");
+                userInput = stdIn.readLine(); 
+            }
+            else if(!tokens[0].toLowerCase().equals("submit") && !tokens[0].toLowerCase().equals("query")){
+                System.out.println("Incorrect operation, either <lookup> for new job, or <status> for query progress");
+                System.out.print("Accepting Input: ");
+                userInput = stdIn.readLine(); 
+            }        
+          
+            if(tokens[0].toLowerCase().equals("submit")){
+               cp = new ClientPacket(tokens[1] , ClientPacket.JOB_SUBMIT);  
+            }
+            else if(tokens[0].toLowerCase().equals("query")){
+               cp = new ClientPacket(tokens[1] , ClientPacket.JOB_QUERY);  
+            } 
+                      
+            
+            waitAndSendData(cp);
+             
+            packetReceived = (ClientPacket)in.readObject();
         }
         }catch(IOException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-
-
+            //IOExceptin resend the data when new JobTracker goes up
+            waitAndSendData(cp);
+        }catch(ClassNotFoundException e){
+            e.printStackTrace();
         }
+
         System.out.println("DONE");
     }
-   
+  
+  
+    public static void waitAndSendData(ClientPacket cp){
+    
+        try{       
+            nodeCreatedSignal.await();
+            out.writeObject(cp);    
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
+     
     public void resetWatch(){
         
         try {
