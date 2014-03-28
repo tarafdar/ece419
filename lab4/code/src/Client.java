@@ -39,38 +39,37 @@ public class Client{
         String delims = "[ ]+";
         
         try{
-        while ((userInput = stdIn.readLine()) != null && !(userInput.toLowerCase().equals("quit"))) {
-            
-            System.out.print("Accepting Input: ");
-            tokens = userInput.split(delims);
-            
-            if(tokens[0].toLowerCase().equals("quit")){
-                System.out.println("QUITTING");
-                break;
-            }
-            else if(tokens.length != 2){
-                System.out.println("Incorrect number of tokens, please enter in form of <JOB_REQUEST> <HASH>");
+            while ((userInput = stdIn.readLine()) != null && !(userInput.toLowerCase().equals("quit"))) {
+
                 System.out.print("Accepting Input: ");
-                userInput = stdIn.readLine(); 
+                tokens = userInput.split(delims);
+
+                if(tokens[0].toLowerCase().equals("quit")){
+                    System.out.println("QUITTING");
+                    break;
+                }
+                else if(tokens.length != 2){
+                    System.out.println("Incorrect number of tokens, please enter in form of <JOB_REQUEST> <HASH>");
+                    System.out.print("Accepting Input: ");
+                    continue;
+                }
+                else if(!tokens[0].toLowerCase().equals("submit") && !tokens[0].toLowerCase().equals("query")){
+                    System.out.println("Incorrect operation, either <lookup> for new job, or <status> for query progress");
+                    System.out.print("Accepting Input: ");
+                    continue;
+                }        
+
+                if(tokens[0].toLowerCase().equals("submit")){
+                    cp = new ClientPacket(tokens[1] , ClientPacket.JOB_SUBMIT);  
+                }
+                else if(tokens[0].toLowerCase().equals("query")){
+                    cp = new ClientPacket(tokens[1] , ClientPacket.JOB_QUERY);  
+                } 
+
+
+                waitAndSendData(cp);
+                packetReceived = (ClientPacket)in.readObject();
             }
-            else if(!tokens[0].toLowerCase().equals("submit") && !tokens[0].toLowerCase().equals("query")){
-                System.out.println("Incorrect operation, either <lookup> for new job, or <status> for query progress");
-                System.out.print("Accepting Input: ");
-                userInput = stdIn.readLine(); 
-            }        
-          
-            if(tokens[0].toLowerCase().equals("submit")){
-               cp = new ClientPacket(tokens[1] , ClientPacket.JOB_SUBMIT);  
-            }
-            else if(tokens[0].toLowerCase().equals("query")){
-               cp = new ClientPacket(tokens[1] , ClientPacket.JOB_QUERY);  
-            } 
-                      
-            
-            waitAndSendData(cp);
-             
-            packetReceived = (ClientPacket)in.readObject();
-        }
         }catch(IOException e){
             //IOExceptin resend the data when new JobTracker goes up
             waitAndSendData(cp);
@@ -145,10 +144,10 @@ public class Client{
         String hostname;
         int port;
        
-        System.out.println("Receieved event");
+        //System.out.println("Receieved event");
         
         if (isNodeCreated && isMyPath) {
-            System.out.println(myPath + " created!");
+          //  System.out.println(myPath + " created!");
             nodeCreatedSignal.countDown();
             try{
                 data = new String(zk.getData(myPath, watcher, null), "UTF-8");
@@ -178,7 +177,7 @@ public class Client{
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
 
         if(isNodeDeleted && isMyPath){
-            System.out.println(myPath + " deleted!");
+            //System.out.println(myPath + " deleted!");
             nodeCreatedSignal = new CountDownLatch(1);
             out = null;
             in = null;
