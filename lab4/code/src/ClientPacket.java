@@ -4,8 +4,8 @@ import java.util.ArrayList;
 public class ClientPacket implements Serializable {
     
     //possible request types
-    public static final int JOB_CREATE = 0;
-    public static final int JOB_STATUS = 1;
+    public static final int JOB_SUBMIT = 0;
+    public static final int JOB_QUERY = 1;
     //possible return statuses
     public static final int JOB_NOT_FOUND = 2;
     public static final int JOB_IN_PROG = 3;

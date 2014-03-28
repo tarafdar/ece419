@@ -10,15 +10,21 @@ public class JobTrackerHandlerThread extends Thread {
     }
 
     public void run() {
-        String whatIget;
+        ClientPacket packetFromClient;
+        
         boolean listening = true;
         try {
             ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
         
             while(listening) {
-                whatIget = (String) fromClient.readObject();
-                System.out.println("I get from client " + whatIget);    
+                packetFromClient = (ClientPacket) fromClient.readObject();
+                if(packetFromClient.requestType == ClientPacket.JOB_SUBMIT) {
+                    
+                }
+                if(packetFromClient.requestType == ClientPacket.JOB_QUERY) {
+                    
+                }
             
             }    
 
