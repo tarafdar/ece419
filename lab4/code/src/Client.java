@@ -2,6 +2,9 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
 import java.util.concurrent.CountDownLatch;
@@ -114,12 +117,40 @@ public class Client{
                 }
         };
         
-
-        resetWatch();
+        Stat stat = zkc.exists(myPath, watcher);
+        if(stat != null) {
+            nodeCreatedSignal.countDown();
+            connectToJobTracker();
+        }
+        //resetWatch();
 
 
     }
 
+    public void connectToJobTracker () {
+        String data;
+        String[] tokens;
+        String delims = "[ ]+";
+        String hostname;
+        int port;
+
+        try{
+            data = zkc.getData(myPath, watcher, null);
+            tokens = data.split(delims);
+            hostname = tokens[0];
+            port = Integer.parseInt(tokens[1]);
+			    
+            socket = new Socket(hostname, port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
+        }catch (UnknownHostException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }
+    }
 
 
     public void handleEvent(WatchedEvent event){
@@ -127,34 +158,13 @@ public class Client{
         boolean isNodeCreated = event.getType().equals(EventType.NodeCreated);
         // verify if this is the defined znode
         boolean isMyPath = event.getPath().equals(myPath);
-        String data;
-        String[] tokens;
-        String delims = "[ ]+";
-        String hostname;
-        int port;
        
         //System.out.println("Receieved event");
         
         if (isNodeCreated && isMyPath) {
           //  System.out.println(myPath + " created!");
             nodeCreatedSignal.countDown();
-            try{
-                data = zkc.getData(myPath, watcher, null);
-                tokens = data.split(delims);
-                hostname = tokens[0];
-                port = Integer.parseInt(tokens[1]);
-			    
-                socket = new Socket(hostname, port);
-                out = new ObjectOutputStream(socket.getOutputStream());
-			    in = new ObjectInputStream(socket.getInputStream());
-            }catch (UnknownHostException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-            }catch (IOException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-            }
-
+            connectToJobTracker();
         }
 
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
