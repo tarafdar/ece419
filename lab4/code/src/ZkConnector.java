@@ -102,6 +102,52 @@ public class ZkConnector implements Watcher {
         return retPath;
     }
     
+    protected List <String> getChildren(String path, Watcher watcher) {
+        
+        List<String> list = null;
+        try {
+            list = zooKeeper.getChildren(path, watcher);
+        } catch(Exception e) {
+		    e.printStackTrace();
+        }
+        
+        return list;
+    }
+
+    protected String getData(String path, Watcher watcher, Stat stat) {
+        String data = null;
+        try {
+            data = new String(zooKeeper.getData(path, watcher, stat), "UTF-8");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+    
+    protected void setData(String path, String dataStr){
+        byte [] data;
+        data = dataStr.getBytes();
+
+        try{
+            zooKeeper.setData(path, data, -1);
+        }catch(Exception e){
+            e.printStackTrace();
+
+        }
+    }
+   
+    protected void delete(String path){
+        
+        try{
+            zooKeeper.delete(path, -1);
+        }catch(Exception e){
+            e.printStackTrace();
+
+        }
+
+
+    }
+    
     public void process(WatchedEvent event) {
         // release lock if ZooKeeper is connected.
         if (event.getState() == KeeperState.SyncConnected) {

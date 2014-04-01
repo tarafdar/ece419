@@ -41,7 +41,6 @@ public class Client{
         try{
             while ((userInput = stdIn.readLine()) != null && !(userInput.toLowerCase().equals("quit"))) {
 
-                System.out.print("Accepting Input: ");
                 tokens = userInput.split(delims);
 
                 if(tokens[0].toLowerCase().equals("quit")){
@@ -54,7 +53,7 @@ public class Client{
                     continue;
                 }
                 else if(!tokens[0].toLowerCase().equals("submit") && !tokens[0].toLowerCase().equals("query")){
-                    System.out.println("Incorrect operation, either <lookup> for new job, or <status> for query progress");
+                    System.out.println("Incorrect operation, either <submit> for new job, or <query> for query progress");
                     System.out.print("Accepting Input: ");
                     continue;
                 }        
@@ -69,6 +68,7 @@ public class Client{
 
                 waitAndSendData(cp);
                 packetReceived = (ClientPacket)in.readObject();
+                System.out.print("Accepting Input: ");
             }
         }catch(IOException e){
             //IOExceptin resend the data when new JobTracker goes up
@@ -94,18 +94,7 @@ public class Client{
     }
      
     public void resetWatch(){
-        
-        try {
-            zk.exists(myPath, watcher);
-        } catch(KeeperException e) {
-            System.out.println(e.code());
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-
-
-
+        zkc.exists(myPath, watcher);
     }
    
     
@@ -150,7 +139,7 @@ public class Client{
           //  System.out.println(myPath + " created!");
             nodeCreatedSignal.countDown();
             try{
-                data = new String(zk.getData(myPath, watcher, null), "UTF-8");
+                data = zkc.getData(myPath, watcher, null);
                 tokens = data.split(delims);
                 hostname = tokens[0];
                 port = Integer.parseInt(tokens[1]);
@@ -158,12 +147,6 @@ public class Client{
                 socket = new Socket(hostname, port);
                 out = new ObjectOutputStream(socket.getOutputStream());
 			    in = new ObjectInputStream(socket.getInputStream());
-            }catch(KeeperException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-            }catch(InterruptedException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
             }catch (UnknownHostException e){
                 System.out.println(e.getMessage());
 		        e.printStackTrace();
