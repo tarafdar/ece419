@@ -30,6 +30,7 @@ public class Worker{
     private String myPath = "/Workers/LeafWorker";
     private String myJobPath = "/Jobs/ParentJob/ChildJob";
     private String jobPath = "/Jobs";
+    private String fileServerPath = "/FileServerP";
     private static ZkConnector zkc;
     private static ZooKeeper zk = null;
     private Watcher jobWatcher;
@@ -47,7 +48,7 @@ public class Worker{
 
 
         if (args.length != 2) {
-            System.out.println("Usage: java -classpath lib/zookeeper-3.3.2.jar:lib/log4j-1.2.15.jar:. JobTracker zkServer:clientPort listenPort");
+            System.out.println("Usage: java -classpath lib/zookeeper-3.3.2.jar:lib/log4j-1.2.15.jar:. Worker zkServer:clientPort");
             return;
         }
         
@@ -57,7 +58,7 @@ public class Worker{
         W.startJobWatch();
         FileServerPacket fp = null;
         FileServerPacket packetReceived = null;
-
+        W.resetFileServerWatcher();
         String data; 
         String delims = "[ ]+";
         String hashJob = null;
@@ -147,8 +148,38 @@ public class Worker{
                                 handleFileServerEvent(event);
                         
                             } };
+        Stat stat = zkc.exists(fileServerPath, fileServerWatcher);
+        if(stat != null) {
+            nodeCreatedSignal.countDown();
+            connectToFileServer();
+        }
 
    }
+    
+    public void connectToFileServer () {
+        String data;
+        String[] tokens;
+        String delims = "[ ]+";
+        String hostname;
+        int port;
+
+        try{
+            data = zkc.getData(fileServerPath, fileServerWatcher, null);
+            tokens = data.split(delims);
+            hostname = tokens[0];
+            port = Integer.parseInt(tokens[1]);
+			    
+            socket = new Socket(hostname, port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
+        }catch (UnknownHostException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }
+    }
 
     public static void waitAndSendData(FileServerPacket fp){
     
@@ -164,7 +195,7 @@ public class Worker{
     
     public void resetFileServerWatcher(){
         
-        Stat stat = zkc.exists(myPath, fileServerWatcher);
+        Stat stat = zkc.exists(fileServerPath, fileServerWatcher);
 
     }
    
@@ -225,34 +256,13 @@ public class Worker{
         // check for event type NodeCreated
         boolean isNodeCreated = event.getType().equals(EventType.NodeCreated);
         // verify if this is the defined znode
-        String data;
-        String[] tokens;
-        String delims = "[ ]+";
-        String hostname;
-        int port;
         String path = event.getPath();       
         //System.out.println("Receieved event");
         
         if (isNodeCreated) {
           //  System.out.println(myPath + " created!");
             nodeCreatedSignal.countDown();
-            try{
-                data = zkc.getData(path, fileServerWatcher, null);
-                tokens = data.split(delims);
-                hostname = tokens[0];
-                port = Integer.parseInt(tokens[1]);
-		        //connect to fileserver	    
-                socket = new Socket(hostname, port);
-                out = new ObjectOutputStream(socket.getOutputStream());
-			    in = new ObjectInputStream(socket.getInputStream());
-            }catch (UnknownHostException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-            }catch (IOException e){
-                System.out.println(e.getMessage());
-		        e.printStackTrace();
-            }
-
+            connectToFileServer();
         }
 
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
