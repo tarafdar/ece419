@@ -84,6 +84,24 @@ public class ZkConnector implements Watcher {
         return KeeperException.Code.OK;
     }
 
+    public String createRetPath(String path, String data, CreateMode mode) {
+        String retPath = null;
+        try {
+            byte[] byteData = null;
+            if(data != null) {
+                byteData = data.getBytes();
+            }
+            retPath = zooKeeper.create(path, byteData, acl, mode);
+            
+        } catch(KeeperException e) {
+            //ignore
+        } catch(Exception e) {
+           //ignore
+        }
+        
+        return retPath;
+    }
+    
     public void process(WatchedEvent event) {
         // release lock if ZooKeeper is connected.
         if (event.getState() == KeeperState.SyncConnected) {
