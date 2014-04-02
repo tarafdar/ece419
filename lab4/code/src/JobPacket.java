@@ -6,11 +6,9 @@ public class JobPacket implements Serializable {
     //possible request types
 
     public String hash;
-    public int jobStatus = 0;
+    public boolean done = false;
+    public boolean found = false; 
     public String result;
-    public String childJobPath;   
-    int start;
-    int numWords;
-    int workersAssigned;
-    int workersCompleted = 0;
+    public int partition;
+    public int partionsCompleted = 0;
 }
