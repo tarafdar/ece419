@@ -10,5 +10,5 @@ public class JobPacket implements Serializable {
     public boolean found = false; 
     public String result;
     public int partition;
-    public int partionsCompleted = 0;
+    public int partitionsCompleted = 0;
 }

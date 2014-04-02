@@ -40,7 +40,7 @@ public class FileServer{
         listenPort = Integer.parseInt(args[1]);
        
         try{ 
-            br = new BufferedReader(new FileReader("dictionary/lowercase.rand"));
+            br = new BufferedReader(new FileReader("../md5/dictionary/lowercase.rand"));
             String line;
             while((line = br.readLine()) != null){
                dictionary.add(line);
