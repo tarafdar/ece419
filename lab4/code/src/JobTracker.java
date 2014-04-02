@@ -38,8 +38,8 @@ public class JobTracker {
     private static String hostnameAndPort;
     private static ServerSocket clientSocket = null;
     private static ServerSocket workerSocket = null;
-    private static ArrayList<JobPacket> parentJobs;
-    private static ArrayList<JobPacket> childJobs;
+    private static ArrayList<JobPacket> parentJobs = new ArrayList<JobPacket>();
+    private static ArrayList<JobPacket> childJobs = new ArrayList<JobPacket>();
   //  public static CountDownLatch workersExist = new CountDownLatch(1);
     //private static AtomicBoolean isPrimary = new AtomicBoolean(false);
     //private static ArrayList <ObjectInputStream> inStreamArray = new ArrayList<ObjectInputStream>();

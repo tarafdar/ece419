@@ -45,13 +45,16 @@ public class workerHandlerThread extends Thread {
                 if (packetToWorker != null) {
                     toWorker.writeObject(packetToWorker);
                     packetFromWorker = (JobPacket) fromWorker.readObject();
+                    //System.out.println("recieved packet back with hash " + packetFromWorker.hash);
                     int i;
                     if(packetFromWorker.found) {
+                        System.out.println("recieved found packet");
                         synchronized(parentJobs) {
                             for(i=0; i<parentJobs.size(); i++) {
                                 if(packetFromWorker.hash.equals(parentJobs.get(i).hash)) {
                                     parentJobs.get(i).done = true;
                                     parentJobs.get(i).found = true;
+                                    parentJobs.get(i).result = packetFromWorker.result;
                                 }    
                             }    
                         }        
@@ -61,6 +64,7 @@ public class workerHandlerThread extends Thread {
                             for(i=0; i<parentJobs.size(); i++) {
                                 if(packetFromWorker.hash.equals(parentJobs.get(i).hash)) {
                                     parentJobs.get(i).partitionsCompleted++;
+                                    //System.out.println("updating count of acks - current ack count " + parentJobs.get(i).partitionsCompleted);
                                     if(parentJobs.get(i).partitionsCompleted == numPartitions)
                                         parentJobs.get(i).done = true;
                                 }        

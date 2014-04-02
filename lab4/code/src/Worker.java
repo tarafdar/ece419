@@ -53,7 +53,7 @@ public class Worker{
     static String hostNameandPort = null;
     
     private static ServerSocket serverSocket = null;
-    private static int listenPort;
+    //private static int listenPort;
     public static void main(String[] args){
 
 
@@ -62,7 +62,7 @@ public class Worker{
             return;
         }
         
-        listenPort = Integer.parseInt(args[1]);
+        //listenPort = Integer.parseInt(args[1]);
         Worker W = new Worker(args[0]);
         
         FileServerPacket fp = null;
@@ -80,7 +80,7 @@ public class Worker{
         
         
         while(true){
-             
+            found = false; 
        
             try{
                jobTrackerSignal.await();
@@ -90,9 +90,10 @@ public class Worker{
                     int start = packetReceivedJT.partition*(numWordsPerPartition);
                     int numWords = numWordsPerPartition;      
                     fp = new FileServerPacket(start, numWords);
+                    hashJob = packetReceivedJT.hash; 
+                    System.out.println("getting job hash = " + hashJob + " partition " + packetReceivedJT.partition);
                     waitAndSendFSData(fp);
                     packetReceivedFS = (FileServerPacket)inFS.readObject();
-                    
                     //traverse through the dictionary words received from fileserver and calculate the hash
                     for(i=0; i < packetReceivedFS.dictWords.size(); i++){
                            
@@ -101,6 +102,7 @@ public class Worker{
                         hash = hashint.toString(16);
                         while (hash.length() < 32) hash = "0" + hash;
                         if(hash.equals(hashJob)){
+                            System.out.println("found! :) ");
                             found = true;
                             match = packetReceivedFS.dictWords.get(i);
                             break;
@@ -123,11 +125,12 @@ public class Worker{
                 if(found){
                     //Sets data in form of <hash> <done?> <value>, this is set in the parent job node
                     packetToJT.found = true;
+                    packetToJT.result = match;
                 }
                 packetToJT.done = true;
 
                 //after processing mini job delete the node
-                outFS.writeObject(packetToJT); 
+                outJT.writeObject(packetToJT); 
                  
             }catch(Exception e){
                 jobTrackerSignal = new CountDownLatch(1);
@@ -186,6 +189,7 @@ public class Worker{
 
         try{
             data = zkc.getData(fileServerPath, fileServerWatcher, null);
+            System.out.println("path of fileserver " + fileServerPath + "the data at that path " + data);
             tokens = data.split(delims);
             hostname = tokens[0];
             port = Integer.parseInt(tokens[1]);
@@ -211,6 +215,7 @@ public class Worker{
 
         try{
             data = zkc.getData(jobTrackerPath, jobTrackerWatcher, null);
+            System.out.println("path of jobtracker " + jobTrackerPath + "the data at that path " + data);
             tokens = data.split(delims);
             hostname = tokens[0];
             port = Integer.parseInt(tokens[2]);

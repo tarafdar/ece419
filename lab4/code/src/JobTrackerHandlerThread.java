@@ -86,7 +86,7 @@ public class JobTrackerHandlerThread extends Thread {
             }    
 
 		} catch (IOException e) {
-		    e.printStackTrace();
+		   // e.printStackTrace();
             listening = false;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -100,7 +100,7 @@ public class JobTrackerHandlerThread extends Thread {
         //first check the parent array to see if it exists if not create it
         synchronized(parentJobs) {
             for(i=0; i<parentJobs.size(); i++) {
-                if(parentJobs.get(i).hash == hash)
+                if(parentJobs.get(i).hash.equals(hash))
                     j = parentJobs.get(i); 
             }
         }
@@ -108,6 +108,7 @@ public class JobTrackerHandlerThread extends Thread {
             return false;
         j = new JobPacket();
         j.hash = hash;
+                
         synchronized(parentJobs) {
             parentJobs.add(j);
         }
@@ -129,7 +130,7 @@ public class JobTrackerHandlerThread extends Thread {
         //first check the parent array to see if it exists if not create it
         synchronized(parentJobs) {
             for(i=0; i<parentJobs.size(); i++) {
-                if(parentJobs.get(i).hash == hash)
+                if(parentJobs.get(i).hash.equals(hash))
                     j = parentJobs.get(i); 
             }
         }

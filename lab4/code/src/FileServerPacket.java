@@ -1,5 +1,5 @@
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
 
 public class FileServerPacket implements Serializable {
     
@@ -7,7 +7,7 @@ public class FileServerPacket implements Serializable {
 
     public int begin;
     public int numWords;
-    public List <String> dictWords;
+    public ArrayList <String> dictWords;
    
     public FileServerPacket(int begin, int numWords) {
         this.begin = begin;

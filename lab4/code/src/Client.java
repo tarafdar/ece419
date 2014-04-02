@@ -90,10 +90,10 @@ public class Client{
                      } 
                      else if(packetReceived.returnStatus == ClientPacket.JOB_FINISHED){
                         if(packetReceived.passFound == ClientPacket.PASS_FOUND){
-                            System.out.println("Password is " + packetReceived.password);
+                            System.out.println("Job Completed. Password is " + packetReceived.password);
                         }
                         else if(packetReceived.passFound == ClientPacket.PASS_NOT_FOUND){
-                            System.out.println("Password not found");
+                            System.out.println("Job Completed. Password not found");
                             
                             
                          }                

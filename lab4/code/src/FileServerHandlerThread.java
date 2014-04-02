@@ -24,13 +24,13 @@ public class FileServerHandlerThread extends Thread {
             while(listening) {
                 packetFromWorker = (FileServerPacket) fromWorker.readObject();
                 packetToWorker = packetFromWorker;
-                packetToWorker.dictWords = dictionary.subList(packetFromWorker.begin, packetFromWorker.begin + packetFromWorker.numWords); 
+                packetToWorker.dictWords = new ArrayList<String>(dictionary.subList(packetFromWorker.begin, packetFromWorker.begin + packetFromWorker.numWords)); 
                 toWorker.writeObject(packetToWorker);
             
             }    
 
 		} catch (IOException e) {
-		    e.printStackTrace();
+		    //e.printStackTrace();
             listening = false;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
