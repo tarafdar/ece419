@@ -71,6 +71,34 @@ public class Client{
 
                 waitAndSendData(cp);
                 packetReceived = (ClientPacket)in.readObject();
+
+                if(packetReceived.requestType == ClientPacket.JOB_SUBMIT){
+                    if(packetReceived.returnStatus == ClientPacket.JOB_SUBMITTED){
+                        System.out.println("Job has been successfully submitted");
+                    }
+                    else if(packetReceived.returnStatus == ClientPacket.JOB_EXISTS){
+                        System.out.println("Job already exists");
+                   } 
+                }
+                else if(packetReceived.requestType == ClientPacket.JOB_QUERY){
+                    if(packetReceived.returnStatus == ClientPacket.JOB_NOT_FOUND){
+                        System.out.println("Job being queried does not exist");    
+                     }     
+                     else if(packetReceived.returnStatus == ClientPacket.JOB_IN_PROG){
+                        System.out.println("Job being queried is currently in progress");
+
+                     } 
+                     else if(packetReceived.returnStatus == ClientPacket.JOB_FINISHED){
+                        if(packetReceived.passFound == ClientPacket.PASS_FOUND){
+                            System.out.println("Password is " + packetReceived.password);
+                        }
+                        else if(packetReceived.passFound == ClientPacket.PASS_NOT_FOUND){
+                            System.out.println("Password not found");
+                            
+                            
+                         }                
+                     } 
+                } 
                 System.out.print("Accepting Input: ");
             }
         }catch(IOException e){
