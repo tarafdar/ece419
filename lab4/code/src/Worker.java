@@ -25,25 +25,35 @@ import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
 
 public class Worker{
-
-    private String myPathRoot = "/Workers";
-    private String myPath = "/Workers/LeafWorker";
-    private String myJobPath = "/Jobs/ParentJob/ChildJob";
-    private String jobPath = "/Jobs";
+    private static int numDictionaryWords = 265744;
+    private static int numPartitions = 16;
+    private static int numWordsPerPartition = numDictionaryWords/numPartitions;
+//    private String myPathRoot = "/Workers";
+//    private String myPath = "/Workers/LeafWorker";
+    private String parentJob = "/JobQ/ParentJobs";
+    private String childJob = "/Jobs";
     private String fileServerPath = "/FileServerP";
+    private String jobTrackerPath = "/JobTrackerP";
     private static ZkConnector zkc;
     private static ZooKeeper zk = null;
-    private Watcher jobWatcher;
+    private Watcher jobTrackerWatcher;
     private Watcher fileServerWatcher;
     private static PriorityQueue <String> jobQueue = new PriorityQueue<String>();
-    static CountDownLatch nodeCreatedSignal = new CountDownLatch(1);
+    static CountDownLatch fileServerSignal = new CountDownLatch(1);
+    static CountDownLatch jobTrackerSignal = new CountDownLatch(1);
     
-    Socket socket;
-    static ObjectOutputStream out = null;
-    static ObjectInputStream in =  null;
-   
-    private int myWorkerID = 0; 
+    Socket socketFS;
+    static ObjectOutputStream outFS = null;
+    static ObjectInputStream inFS =  null;
     
+    Socket socketJT;
+    static ObjectOutputStream outJT = null;
+    static ObjectInputStream inJT =  null;
+    
+    static String hostNameandPort = null;
+    
+    private static ServerSocket serverSocket = null;
+    private static int listenPort;
     public static void main(String[] args){
 
 
@@ -52,74 +62,76 @@ public class Worker{
             return;
         }
         
+        listenPort = Integer.parseInt(args[1]);
         Worker W = new Worker(args[0]);
-        W.startRootWorker();
-        W.startLeafWorker();
-        W.startJobWatch();
+        
         FileServerPacket fp = null;
-        FileServerPacket packetReceived = null;
+        FileServerPacket packetReceivedFS = null;
         W.resetFileServerWatcher();
-        String data; 
-        String delims = "[ ]+";
+        
         String hashJob = null;
         String hash = null;
         String match = null; 
         int i;
         boolean found = false;
-        String currentJobPath = null;
-        String parentJob = "/Jobs/ParentJob-0000000000";
-        int parentJobLength = parentJob.length();
-        String [] tokens; 
+        JobPacket packetReceivedJT = null; 
+        JobPacket packetToJT = null; 
+        
+        
+        
         while(true){
-            
-            if(jobQueue.size()>0){
-                currentJobPath = jobQueue.poll();
-                data = zkc.getData(currentJobPath, null, null);
-                tokens = data.split(delims);
-                fp = new FileServerPacket(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-                hashJob = tokens[0];
-                
+             
+       
+            try{
+               jobTrackerSignal.await();
+               packetReceivedJT = (JobPacket)inJT.readObject();  
                 
                 try{
-                    
-                    waitAndSendData(fp);
-                    packetReceived = (FileServerPacket)in.readObject();
+                    int start = packetReceivedJT.partition*(numWordsPerPartition);
+                    int numWords = numWordsPerPartition;      
+                    fp = new FileServerPacket(start, numWords);
+                    waitAndSendFSData(fp);
+                    packetReceivedFS = (FileServerPacket)inFS.readObject();
                     
                     //traverse through the dictionary words received from fileserver and calculate the hash
-                    for(i=0; i < packetReceived.dictWords.size(); i++){
+                    for(i=0; i < packetReceivedFS.dictWords.size(); i++){
                            
                         MessageDigest md5 = MessageDigest.getInstance("MD5");
-                        BigInteger hashint = new BigInteger(1, md5.digest(packetReceived.dictWords.get(i).getBytes()));
+                        BigInteger hashint = new BigInteger(1, md5.digest(packetReceivedFS.dictWords.get(i).getBytes()));
                         hash = hashint.toString(16);
                         while (hash.length() < 32) hash = "0" + hash;
                         if(hash.equals(hashJob)){
                             found = true;
-                            match = packetReceived.dictWords.get(i);
+                            match = packetReceivedFS.dictWords.get(i);
                             break;
                         }
                              
                     }                 
                     
-                    if(found){
-                        //Sets data in form of <hash> <done?> <value>, this is set in the parent job node
-                        zkc.setData(currentJobPath.substring(0, parentJobLength - 1), hash + " 1 " + match);                        
-                    }
-                    
-                    //after processing mini job delete the node
-                    zkc.delete(currentJobPath); 
 
 
 
                 }catch(IOException e){
-                    waitAndSendData(fp);
+                    waitAndSendFSData(fp);
                 }catch(ClassNotFoundException e){
                     e.printStackTrace();
                 }catch (NoSuchAlgorithmException nsae){
                     //ignore
-
                 }
-            
-            
+                
+                packetToJT = packetReceivedJT; 
+                if(found){
+                    //Sets data in form of <hash> <done?> <value>, this is set in the parent job node
+                    packetToJT.found = true;
+                }
+                packetToJT.done = true;
+
+                //after processing mini job delete the node
+                outFS.writeObject(packetToJT); 
+                 
+            }catch(Exception e){
+                jobTrackerSignal = new CountDownLatch(1);
+                continue;
             }
         }
 
@@ -134,14 +146,16 @@ public class Worker{
         } catch(Exception e) {
             System.out.println("Zookeeper connect "+ e.getMessage());
         }
- 
-        jobWatcher = new Watcher() { // Anonymous Watcher
+
+        
+        jobTrackerWatcher = new Watcher() { // Anonymous Watcher
                             @Override
                             public void process(WatchedEvent event) {
-                                handleJobEvent(event);
+                                handleJobTrackerEvent(event);
                         
-                            } };
 
+ 
+                            } };
         fileServerWatcher = new Watcher() { // Anonymous Watcher
                             @Override
                             public void process(WatchedEvent event) {
@@ -150,9 +164,16 @@ public class Worker{
                             } };
         Stat stat = zkc.exists(fileServerPath, fileServerWatcher);
         if(stat != null) {
-            nodeCreatedSignal.countDown();
+            fileServerSignal.countDown();
             connectToFileServer();
         }
+
+        stat = zkc.exists(jobTrackerPath, jobTrackerWatcher);
+        if(stat != null) {
+            jobTrackerSignal.countDown();
+            connectToJobTracker();
+        }
+       
 
    }
     
@@ -169,9 +190,9 @@ public class Worker{
             hostname = tokens[0];
             port = Integer.parseInt(tokens[1]);
 			    
-            socket = new Socket(hostname, port);
-            out = new ObjectOutputStream(socket.getOutputStream());
-			in = new ObjectInputStream(socket.getInputStream());
+            socketFS = new Socket(hostname, port);
+            outFS = new ObjectOutputStream(socketFS.getOutputStream());
+			inFS = new ObjectInputStream(socketFS.getInputStream());
         }catch (UnknownHostException e){
             System.out.println(e.getMessage());
 		    e.printStackTrace();
@@ -181,11 +202,38 @@ public class Worker{
         }
     }
 
-    public static void waitAndSendData(FileServerPacket fp){
+    public void connectToJobTracker () {
+        String data;
+        String[] tokens;
+        String delims = "[ ]+";
+        String hostname;
+        int port;
+
+        try{
+            data = zkc.getData(jobTrackerPath, jobTrackerWatcher, null);
+            tokens = data.split(delims);
+            hostname = tokens[0];
+            port = Integer.parseInt(tokens[2]);
+			    
+            socketJT = new Socket(hostname, port);
+            outJT = new ObjectOutputStream(socketJT.getOutputStream());
+			inJT = new ObjectInputStream(socketJT.getInputStream());
+        }catch (UnknownHostException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+		    e.printStackTrace();
+        }
+    }
+   
+   
+    
+    public static void waitAndSendFSData(FileServerPacket fp){
     
         try{       
-            nodeCreatedSignal.await();
-            out.writeObject(fp);    
+            fileServerSignal.await();
+            outFS.writeObject(fp);    
         } catch(Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -194,63 +242,39 @@ public class Worker{
     }
     
     public void resetFileServerWatcher(){
-        
         Stat stat = zkc.exists(fileServerPath, fileServerWatcher);
-
     }
    
-   private void startJobWatch(){
-        Stat stat = zkc.exists(jobPath, null);
-
-
-
-   }
-
-   private void startRootWorker(){
-        Stat stat = zkc.exists(myPathRoot, null);
-        if (stat == null) {              // znode doesn't exist; let's try creating it
-            System.out.println("Creating root worker " + myPathRoot);
-            Code ret = zkc.create(
-                        myPathRoot,         // Path of znode
-                        null,           // Data not needed.
-                        CreateMode.PERSISTENT   // Znode type, set to EPHEMERAL.
-                        );
-            if (ret == Code.OK) System.out.println("Became Primary!");
-        } 
-
+    public void resetJobTrackerWatcher(){
+        Stat stat = zkc.exists(jobTrackerPath, jobTrackerWatcher);
     }
 
-   private void startLeafWorker(){
-            System.out.println("Creating leaf worker " + myPath);
-            String ret = zkc.createRetPath(
-                        myPath,         // Path of znode
-                        null,           // Data not needed.
-                        CreateMode.EPHEMERAL_SEQUENTIAL   // Znode type, set to EPHEMERAL.
-                        );
-
-
-
-            myWorkerID = Integer.parseInt(ret.substring(ret.length()-10,ret.length()-1));
-        }
+//   private void startRootWorker(){
+//        Stat stat = zkc.exists(myPathRoot, null);
+//        if (stat == null) {              // znode doesn't exist; let's try creating it
+//            System.out.println("Creating root worker " + myPathRoot);
+//            Code ret = zkc.create(
+//                        myPathRoot,         // Path of znode
+//                        null,           // Data not needed.
+//                        CreateMode.PERSISTENT   // Znode type, set to EPHEMERAL.
+//                        );
+//            if (ret == Code.OK) System.out.println("Became Primary!");
+//        } 
+//
+//    }
+//
+//   private void startLeafWorker(){
+//            System.out.println("Creating leaf worker " + myPath);
+//            String ret = zkc.createRetPath(
+//                        myPath,         // Path of znode
+//                        null,           // Data not needed.
+//                        CreateMode.EPHEMERAL_SEQUENTIAL   // Znode type, set to EPHEMERAL.
+//                        );
+//
+//
+//
+//        }
         
-    private void handleJobEvent(WatchedEvent event){
-       
-        String path = event.getPath();
-        EventType type = event.getType();
-        
-        String[] tokens;
-        String delims = "[ ]+";
-        String data = zkc.getData(path, jobWatcher, null);
-        tokens = data.split(delims);
-        
-        if(path.contains("ChildJob") && type == EventType.NodeCreated && path.equals(tokens[3])){
-            jobQueue.add(path);
-        }
-        
-        
-    }
-    
-    
     
     private void handleFileServerEvent(WatchedEvent event){
         // check for event type NodeCreated
@@ -261,7 +285,7 @@ public class Worker{
         
         if (isNodeCreated) {
           //  System.out.println(myPath + " created!");
-            nodeCreatedSignal.countDown();
+            fileServerSignal.countDown();
             connectToFileServer();
         }
 
@@ -269,11 +293,38 @@ public class Worker{
 
         if(isNodeDeleted){
             //System.out.println(myPath + " deleted!");
-            nodeCreatedSignal = new CountDownLatch(1);
-            out = null;
-            in = null;
-            resetFileServerWatcher();
+            fileServerSignal = new CountDownLatch(1);
+            outFS = null;
+            inFS = null;
+            //resetFileServerWatcher();
         }
+       resetFileServerWatcher();
+        
+    } 
+
+    private void handleJobTrackerEvent(WatchedEvent event){
+        // check for event type NodeCreated
+        boolean isNodeCreated = event.getType().equals(EventType.NodeCreated);
+        // verify if this is the defined znode
+        String path = event.getPath();       
+        //System.out.println("Receieved event");
+        
+        if (isNodeCreated) {
+          //  System.out.println(myPath + " created!");
+            jobTrackerSignal.countDown();
+            connectToJobTracker();
+        }
+
+        boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
+
+        if(isNodeDeleted){
+            //System.out.println(myPath + " deleted!");
+            jobTrackerSignal = new CountDownLatch(1);
+            outJT = null;
+            inJT = null;
+            //resetFileServerWatcher();
+        }
+       resetJobTrackerWatcher();
         
     } 
 
