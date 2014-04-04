@@ -21,6 +21,7 @@ import java.io.IOException;
 
 public class waitForWorkerConnections extends Thread {
 
+    private ZkConnector zkc;
     private ServerSocket workerSocket;
     private ArrayList<JobPacket> parentJobs;
     private ArrayList<JobPacket> childJobs;
@@ -30,12 +31,13 @@ public class waitForWorkerConnections extends Thread {
     //private ArrayList <ObjectInputStream> inStreamArray;
     //private ArrayList <ObjectOutputStream> outStreamArray;
     
-    public waitForWorkerConnections (ServerSocket workerSocket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions) {
+    public waitForWorkerConnections (ServerSocket workerSocket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions, ZkConnector zkc) {
         super("waitForWorkerConnections");
         this.workerSocket = workerSocket;
         this.parentJobs = parentJobs;
         this.childJobs = childJobs;
         this.numPartitions = numPartitions;
+        this.zkc = zkc;
         //this.inStreamArray = inStreamArray;
         //this.outStreamArray = outStreamArray;
     }        
@@ -46,7 +48,7 @@ public class waitForWorkerConnections extends Thread {
        while (listening) {
             try{
                 Socket socket = workerSocket.accept();
-                new workerHandlerThread(socket, parentJobs, childJobs, numPartitions).start();
+                new workerHandlerThread(socket, parentJobs, childJobs, numPartitions, zkc).start();
             } catch (IOException e) {
                 System.err.println("ERROR: Couldn't get I/O for the connection.");
 		        e.printStackTrace();

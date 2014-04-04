@@ -14,17 +14,19 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 public class workerHandlerThread extends Thread {
+    private ZkConnector zkc;
     private Socket socket;
     private ArrayList<JobPacket> parentJobs;
     private ArrayList<JobPacket> childJobs;
     private int numPartitions;
 
-    public workerHandlerThread(Socket socket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions) {
+    public workerHandlerThread(Socket socket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions, ZkConnector zkc) {
         super("workerHandlerThread");
         this.socket = socket;
         this.parentJobs = parentJobs;
         this.childJobs = childJobs;
         this.numPartitions = numPartitions;
+        this.zkc = zkc;
     }
 
     public void run() {
@@ -55,6 +57,7 @@ public class workerHandlerThread extends Thread {
                                     parentJobs.get(i).done = true;
                                     parentJobs.get(i).found = true;
                                     parentJobs.get(i).result = packetFromWorker.result;
+                                    zkc.setData(parentJobs.get(i).path, parentJobs.get(i).hash + " 1 1 " + parentJobs.get(i).result);                                   
                                 }    
                             }    
                         }        
@@ -65,13 +68,17 @@ public class workerHandlerThread extends Thread {
                                 if(packetFromWorker.hash.equals(parentJobs.get(i).hash)) {
                                     parentJobs.get(i).partitionsCompleted++;
                                     //System.out.println("updating count of acks - current ack count " + parentJobs.get(i).partitionsCompleted);
-                                    if(parentJobs.get(i).partitionsCompleted == numPartitions)
+                                    if(parentJobs.get(i).partitionsCompleted == numPartitions) {
                                         parentJobs.get(i).done = true;
+                                        if(!parentJobs.get(i).found)
+                                            zkc.setData(parentJobs.get(i).path, parentJobs.get(i).hash + " 1 0");
+                                    }    
                                 }        
                             }    
                         }        
                     }         
-                }    
+                }
+                this.yield();    
             }    
 
 		} catch (IOException e) {

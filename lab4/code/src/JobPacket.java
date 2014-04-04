@@ -11,4 +11,5 @@ public class JobPacket implements Serializable {
     public String result;
     public int partition;
     public int partitionsCompleted = 0;
+    public String path;
 }

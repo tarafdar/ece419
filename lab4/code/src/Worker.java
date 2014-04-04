@@ -92,7 +92,8 @@ public class Worker{
                     fp = new FileServerPacket(start, numWords);
                     hashJob = packetReceivedJT.hash; 
                     System.out.println("getting job hash = " + hashJob + " partition " + packetReceivedJT.partition);
-                    waitAndSendFSData(fp);
+                    while(!waitAndSendFSData(fp))
+                        waitAndSendFSData(fp);
                     packetReceivedFS = (FileServerPacket)inFS.readObject();
                     //traverse through the dictionary words received from fileserver and calculate the hash
                     for(i=0; i < packetReceivedFS.dictWords.size(); i++){
@@ -167,14 +168,14 @@ public class Worker{
                             } };
         Stat stat = zkc.exists(fileServerPath, fileServerWatcher);
         if(stat != null) {
-            fileServerSignal.countDown();
             connectToFileServer();
+            fileServerSignal.countDown();
         }
 
         stat = zkc.exists(jobTrackerPath, jobTrackerWatcher);
         if(stat != null) {
-            jobTrackerSignal.countDown();
             connectToJobTracker();
+            jobTrackerSignal.countDown();
         }
        
 
@@ -189,7 +190,7 @@ public class Worker{
 
         try{
             data = zkc.getData(fileServerPath, fileServerWatcher, null);
-            System.out.println("path of fileserver " + fileServerPath + "the data at that path " + data);
+            System.out.println("path of fileserver " + fileServerPath + " the data at that path " + data);
             tokens = data.split(delims);
             hostname = tokens[0];
             port = Integer.parseInt(tokens[1]);
@@ -234,14 +235,15 @@ public class Worker{
    
    
     
-    public static void waitAndSendFSData(FileServerPacket fp){
+    public static boolean waitAndSendFSData(FileServerPacket fp){
     
         try{       
             fileServerSignal.await();
             outFS.writeObject(fp);    
+            return true;
         } catch(Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            fileServerSignal = new CountDownLatch(1);
+            return false;
         }
 
     }
@@ -286,19 +288,19 @@ public class Worker{
         boolean isNodeCreated = event.getType().equals(EventType.NodeCreated);
         // verify if this is the defined znode
         String path = event.getPath();       
-        //System.out.println("Receieved event");
+        System.out.println("Receieved fileserver event");
         
         if (isNodeCreated) {
           //  System.out.println(myPath + " created!");
-            fileServerSignal.countDown();
             connectToFileServer();
+            fileServerSignal.countDown();
         }
 
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
 
         if(isNodeDeleted){
             //System.out.println(myPath + " deleted!");
-            fileServerSignal = new CountDownLatch(1);
+            //fileServerSignal = new CountDownLatch(1);
             outFS = null;
             inFS = null;
             //resetFileServerWatcher();
@@ -316,15 +318,15 @@ public class Worker{
         
         if (isNodeCreated) {
           //  System.out.println(myPath + " created!");
-            jobTrackerSignal.countDown();
             connectToJobTracker();
+            jobTrackerSignal.countDown();
         }
 
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
 
         if(isNodeDeleted){
             //System.out.println(myPath + " deleted!");
-            jobTrackerSignal = new CountDownLatch(1);
+            //jobTrackerSignal = new CountDownLatch(1);
             outJT = null;
             inJT = null;
             //resetFileServerWatcher();

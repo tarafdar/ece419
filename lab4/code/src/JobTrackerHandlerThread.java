@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 public class JobTrackerHandlerThread extends Thread {
+    private ZkConnector zkc;
     private Socket socket;
-    private String jobsPath;
+    private String jobsPath = "/Jobs/ParentJob";
     private final int numPartitions;
     private static ArrayList<JobPacket> parentJobs;
     private static ArrayList<JobPacket> childJobs;
@@ -29,7 +30,7 @@ public class JobTrackerHandlerThread extends Thread {
     //public CountDownLatch workersExist;
     //public AtomicInteger numWorkers;
     
-    public JobTrackerHandlerThread(Socket socket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions) {
+    public JobTrackerHandlerThread(Socket socket, ArrayList<JobPacket> parentJobs, ArrayList<JobPacket> childJobs, int numPartitions, ZkConnector zkc) {
         super("JobTrackerHandlerThread");
         this.socket = socket;
         //this.zkc = zkc;
@@ -38,6 +39,7 @@ public class JobTrackerHandlerThread extends Thread {
         this.parentJobs = parentJobs;
         this.childJobs = childJobs;
         this.numPartitions = numPartitions;
+        this.zkc = zkc;
         //this.workersExist = workersExist;
     }
 
@@ -110,6 +112,13 @@ public class JobTrackerHandlerThread extends Thread {
         j.hash = hash;
                 
         synchronized(parentJobs) {
+            j.path = zkc.createRetPath(
+                        jobsPath,
+                        hash + " 0 0",
+                        CreateMode.PERSISTENT_SEQUENTIAL
+                      );
+            if(j.path == null)
+                System.out.println("returned null????");
             parentJobs.add(j);
         }
 
@@ -161,11 +170,6 @@ public class JobTrackerHandlerThread extends Thread {
 //        }    
 //        else {
 //            System.out.println("creating new job, job doesnt exist");
-//            zkc.create(
-//                        parentPath,
-//                        hash + " 0",
-//                        CreateMode.PERSISTENT_SEQUENTIAL
-//                      );
 //            //list = zk.getChildren(workersPath, null);
 //            //int numWorkers = list.size();
 //            

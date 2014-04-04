@@ -76,14 +76,14 @@ public class JobTracker {
         J.becomePrimary();
 //        J.createJobQueue();        
         //J.workerWatch();
-        new waitForWorkerConnections(workerSocket, parentJobs, childJobs, numPartitions).start();
+        new waitForWorkerConnections(workerSocket, parentJobs, childJobs, numPartitions, zkc).start();
 //        new waitForWorkerConnections(workerSocket, parentJobs, childJobs, numPartitions);
         //System.out.println("Sleeping...");
         //try{ Thread.sleep(5000); } catch (Exception e) {}
         while (listening) {
             try{
                 Socket socket = clientSocket.accept();
-                new JobTrackerHandlerThread(socket, parentJobs, childJobs, numPartitions).start();
+                new JobTrackerHandlerThread(socket, parentJobs, childJobs, numPartitions, zkc).start();
             } catch (IOException e) {
                 System.err.println("ERROR: Couldn't get I/O for the connection.");
 		        e.printStackTrace();
@@ -138,7 +138,56 @@ public class JobTracker {
                         hostnameAndPort,           // Data not needed.
                         CreateMode.EPHEMERAL   // Znode type, set to EPHEMERAL.
                         );
-            if (ret == Code.OK) System.out.println("Became Primary!");
+            if (ret == Code.OK) {
+                System.out.println("Became Primary!");
+                stat = zkc.exists(jobsPath,null);
+                if(stat == null) {
+                    System.out.println("Making new job queue");
+                    zkc.create(
+                        jobsPath,
+                        null,
+                        CreateMode.PERSISTENT
+                        );
+                }
+                else {
+                    System.out.println("restoring job queue");
+                    String data;
+                    List<String> list = zkc.getChildren(jobsPath, null);
+                    if (list.size() != 0) {
+                        for(String s : list){
+                            data = zkc.getData(jobsPath + "/" + s, null, null);
+                            System.out.println("path of child node " + s + " data at that node " + data);
+                            String tokens[] = data.split(" ");
+                            JobPacket j = new JobPacket();
+                            j.path = jobsPath + "/" + s;
+                            j.hash = tokens[0];
+                            if(tokens[1].equals("1")) j.done = true;
+                            else j.done = false;
+                            if(tokens[2].equals("1")) {
+                                 j.found = true;
+                                 j.result = tokens[3];
+                            }     
+                            else j.found = false;
+                            synchronized(parentJobs) {
+                                parentJobs.add(j);
+                            }
+                            int i;
+                            if(!j.done) {
+                                synchronized(childJobs) {
+                                    for(i=0; i<numPartitions; i++) {
+                                        JobPacket childj = new JobPacket();
+                                        childj.hash = j.hash;
+                                        childj.partition = i;
+                                        childJobs.add(childj);
+                                    }
+                                }
+
+                            }    
+                        }
+                    }        
+
+                }    
+            }    
         } 
     }
     

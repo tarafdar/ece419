@@ -69,7 +69,8 @@ public class Client{
                 } 
 
 
-                waitAndSendData(cp);
+                while(!waitAndSendData(cp))
+                    waitAndSendData(cp);
                 packetReceived = (ClientPacket)in.readObject();
 
                 if(packetReceived.requestType == ClientPacket.JOB_SUBMIT){
@@ -112,14 +113,15 @@ public class Client{
     }
   
   
-    public static void waitAndSendData(ClientPacket cp){
+    public static boolean waitAndSendData(ClientPacket cp){
     
         try{       
             nodeCreatedSignal.await();
-            out.writeObject(cp);    
+            out.writeObject(cp);
+            return true;    
         } catch(Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            nodeCreatedSignal = new CountDownLatch(1);
+            return false;
         }
 
     }
@@ -147,8 +149,8 @@ public class Client{
         
         Stat stat = zkc.exists(myPath, watcher);
         if(stat != null) {
-            nodeCreatedSignal.countDown();
             connectToJobTracker();
+            nodeCreatedSignal.countDown();
         }
         //resetWatch();
 
@@ -191,15 +193,15 @@ public class Client{
         
         if (isNodeCreated && isMyPath) {
           //  System.out.println(myPath + " created!");
-            nodeCreatedSignal.countDown();
             connectToJobTracker();
+            nodeCreatedSignal.countDown();
         }
 
         boolean isNodeDeleted = event.getType().equals(EventType.NodeDeleted);
 
         if(isNodeDeleted && isMyPath){
             //System.out.println(myPath + " deleted!");
-            nodeCreatedSignal = new CountDownLatch(1);
+            //nodeCreatedSignal = new CountDownLatch(1);
             out = null;
             in = null;
             resetWatch();
